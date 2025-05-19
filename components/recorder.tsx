@@ -170,37 +170,65 @@ export default function AudioRecorder() {
             <FlatList
                 data={sentMessages}
                 keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.messageContainer}>
-                        <View style={styles.messageBubble}>
-                            <Text style={styles.messageText}>{item.message}</Text>
-                        </View>
+                renderItem={({ item }) => {
+                    const total = item?.consult_results?.reduce((acc: number, cur: any) => {
+                        const value = Number(cur.value || 0);
+                        return cur.type === 'SPENDING' ? acc - value : acc + value;
+                    }, 0) || 0;
 
-                        {item.consult_results?.map((row, i) => (
-                            <View key={i} style={styles.card}>
-                                <View style={styles.cardLeft}>
-                                    <Text style={styles.cardCategory}>{row.category}</Text>
-                                    <Text style={styles.cardDescription}>{row.description}</Text>
-                                    <Text style={styles.cardDate}>
-                                        {moment(row.date).format('DD/MM/yyyy')}
+                    return (
+                        <View style={styles.messageContainer}>
+                            <View style={styles.messageBubble}>
+                                <Text style={styles.messageText}>{item.message}</Text>
+                            </View>
+
+                            {item.consult_results?.map((row, i) => (
+                                <View key={i} style={styles.card}>
+                                    <View style={styles.cardLeft}>
+                                        <Text style={styles.cardCategory}>{row.category}</Text>
+                                        <Text style={styles.cardDescription}>{row.description}</Text>
+                                        <Text style={styles.cardDate}>
+                                            {moment(row.date).format('DD/MM/yyyy')}
+                                        </Text>
+                                    </View>
+                                    <Text
+                                        style={[
+                                            styles.cardValue,
+                                            row.type === 'SPENDING' ? styles.valueExpense : styles.valueIncome,
+                                        ]}
+                                    >
+                                        {new Intl.NumberFormat('pt-BR', {
+                                            style: 'currency',
+                                            currency: 'BRL',
+                                        }).format(Number(row.value || 0))}
                                     </Text>
                                 </View>
-                                <Text
-                                    style={[
-                                        styles.cardValue,
-                                        row.type === 'SPENDING' ? styles.valueExpense : styles.valueIncome,
-                                    ]}
-                                >
-                                    R$ {Number(row.value || 0).toFixed(2)}
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
-                )}
+                            ))}
+
+                            {item?.consult_results && item?.consult_results?.length > 0 && (
+                                <View style={styles.totalContainer}>
+                                    <Text
+                                        style={[
+                                            styles.totalText,
+                                            total < 0 ? styles.totalNegative : styles.totalPositive,
+                                        ]}
+                                    >
+                                        Total:{' '}
+                                        {new Intl.NumberFormat('pt-BR', {
+                                            style: 'currency',
+                                            currency: 'BRL',
+                                        }).format(total)}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                    );
+                }}
                 style={styles.messageList}
                 contentContainerStyle={styles.messageListContent}
                 inverted
             />
+
 
             {loading && (
                 <View style={styles.loadingOverlay}>
@@ -267,6 +295,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    totalNegative: {
+        color: 'red',
+    },
+    totalPositive: {
+        color: 'green',
+    },
     micWrapper: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -306,6 +340,18 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: '#666',
         marginBottom: 2,
+    },
+    totalContainer: {
+        backgroundColor: '#F1F8E9',
+        borderRadius: 10,
+        padding: 12,
+        alignItems: 'flex-end',
+        marginTop: 8,
+    },
+    totalText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#33691E',
     },
     cardDate: {
         fontSize: 12,
