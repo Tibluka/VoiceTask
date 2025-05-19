@@ -1,4 +1,6 @@
+import { ThemedView } from '@/components/ThemedView';
 import { Audio } from 'expo-av';
+import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
@@ -104,7 +106,16 @@ export default function AudioRecorder() {
             setLoading(false);
 
             if (transcription) {
-                setSentMessages(prev => [{ message: transcription }, ...prev]);
+                setSentMessages(prev => [
+                    {
+                        message: transcription.gpt_answer,
+                        consult_results: transcription.consult_results
+                    },
+                    {
+                        message: transcription.description
+                    },
+                    ...prev
+                ]);
             }
         } catch (error) {
             console.error('Erro ao parar gravação', error);
@@ -120,7 +131,7 @@ export default function AudioRecorder() {
                 type: "audio/mp4",
             } as any);
 
-            const res = await fetch("http://192.168.0.200:5003/transcribe", {
+            const res = await fetch("http://192.168.18.4:5004/transcribe", {
                 method: "POST",
                 body: formData,
             });
@@ -128,26 +139,73 @@ export default function AudioRecorder() {
             if (!res.ok) throw new Error(`Erro na API: ${res.status}`);
 
             const data = await res.json();
-            return data.transcription;
+            console.log(data.transcription.gpt_answer);
+
+            return {
+                gpt_answer: data.transcription.gpt_answer,
+                description: data.transcription.description,
+                consult_results: data.transcription.consult_results
+            };
         } catch (error) {
             console.error("Erro ao enviar áudio:", error);
         }
     };
 
     return (
-        <View style={styles.container}>
+        <ThemedView style={styles.container}>
             <FlatList
                 data={sentMessages}
                 keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.messageBubble}>
-                        <Text style={styles.messageText}>{item.message}</Text>
+                renderItem={({ item }: any) => (
+                    <View style={styles.messageContainer}>
+                        {/* Mensagem padrão */}
+                        <View style={styles.messageBubble}>
+                            <Text style={styles.messageText}>{item.message}</Text>
+                        </View>
+
+                        {/* Se houver consult_results, renderiza tabela */}
+                        {item.consult_results && Array.isArray(item.consult_results) && (
+                            <View style={styles.tableContainer}>
+                                {/* Cabeçalho */}
+                                <View style={styles.tableRowHeader}>
+                                    <Text style={styles.tableHeaderText}>Categoria</Text>
+                                    <Text style={styles.tableHeaderText}>Data</Text>
+                                    <Text style={styles.tableHeaderText}>Descrição</Text>
+                                    <Text style={styles.tableHeaderText}>Tipo</Text>
+                                    <Text style={styles.tableHeaderText}>Valor</Text>
+                                </View>
+
+                                {/* Linhas da tabela */}
+                                {item.consult_results.map((row: any, i: any) => (
+                                    <View key={i} style={styles.tableRow}>
+                                        <Text style={styles.tableCell}>{row.category}</Text>
+                                        <Text style={styles.tableCell}>{moment(row.date).format('DD/MM/yyyy')}</Text>
+                                        <Text style={styles.tableCell}>{row.description}</Text>
+                                        <Text style={styles.tableCell}>{row.type}</Text>
+                                        <Text style={styles.tableCell}>{row.value}</Text>
+                                    </View>
+                                ))}
+
+                                {/* Linha de total */}
+                                <View style={styles.totalRow}>
+                                    <Text style={styles.totalLabel}>Total</Text>
+                                    <Text style={styles.totalSpacer} />
+                                    <Text style={styles.totalSpacer} />
+                                    <Text style={styles.totalSpacer} />
+                                    <Text style={styles.totalValue}>
+                                        R$ {item.consult_results.reduce((acc: any, cur: any) => acc + Number(cur.value || 0), 0).toFixed(2)}
+                                    </Text>
+                                </View>
+                            </View>
+                        )}
+
                     </View>
                 )}
                 style={styles.messageList}
                 contentContainerStyle={styles.messageListContent}
                 inverted
             />
+
 
             {loading && (
                 <View style={styles.loadingOverlay}>
@@ -169,14 +227,48 @@ export default function AudioRecorder() {
                     </TouchableOpacity>
                 </Animated.View>
             </View>
-        </View>
+        </ThemedView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f4f4f8', paddingBottom: 130 },
+    container: { flex: 1, paddingBottom: 180 },
     messageList: {
         flex: 1,
+    },
+    messageContainer: {
+        marginBottom: 16,
+    },
+
+    tableContainer: {
+        marginTop: 8,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 8,
+        padding: 8,
+    },
+
+    tableRowHeader: {
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        paddingBottom: 4,
+        marginBottom: 4,
+    },
+
+    tableRow: {
+        flexDirection: 'row',
+        marginBottom: 4,
+    },
+
+    tableHeaderText: {
+        flex: 1,
+        fontWeight: 'bold',
+        fontSize: 12,
+    },
+
+    tableCell: {
+        flex: 1,
+        fontSize: 12,
     },
     messageListContent: {
         paddingHorizontal: 16,
@@ -192,7 +284,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        paddingBottom: 180,
+        paddingBottom: 220,
         zIndex: 10,
     },
     loadingBox: {
@@ -214,13 +306,37 @@ const styles = StyleSheet.create({
         marginVertical: 6,
         maxWidth: '80%',
     },
+    totalRow: {
+        flexDirection: 'row',
+        borderTopWidth: 1,
+        borderTopColor: '#ccc',
+        paddingTop: 6,
+        marginTop: 6,
+    },
+
+    totalLabel: {
+        flex: 1,
+        fontWeight: 'bold',
+        fontSize: 12,
+    },
+
+    totalSpacer: {
+        flex: 1,
+    },
+
+    totalValue: {
+        flex: 1,
+        fontWeight: 'bold',
+        fontSize: 12,
+        textAlign: 'right',
+    },
     messageText: {
         fontSize: 16,
         color: '#333',
     },
     recorderContainer: {
         position: 'absolute',
-        bottom: 70,
+        bottom: 110,
         left: 0,
         right: 0,
         alignItems: 'center',
