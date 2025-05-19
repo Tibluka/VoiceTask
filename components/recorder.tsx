@@ -164,7 +164,7 @@ export default function AudioRecorder() {
                         </View>
 
                         {/* Se houver consult_results, renderiza tabela */}
-                        {item.consult_results && Array.isArray(item.consult_results) && (
+                        {item.consult_results && Array.isArray(item.consult_results) && item.consult_results.length > 0 && (
                             <View style={styles.tableContainer}>
                                 {/* Cabeçalho */}
                                 <View style={styles.tableRowHeader}>
@@ -232,9 +232,10 @@ export default function AudioRecorder() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, paddingBottom: 180 },
+    container: { flex: 1, paddingBottom: 0 },
     messageList: {
         flex: 1,
+        paddingVertical: 160
     },
     messageContainer: {
         marginBottom: 16,

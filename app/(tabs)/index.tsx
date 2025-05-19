@@ -1,5 +1,5 @@
 import { SafeAreaView, StyleSheet } from 'react-native';
-import AudioRecorderExample from '../components/recorder';
+import AudioRecorderExample from '../../components/recorder';
 
 export default function HomeScreen() {
   return (
