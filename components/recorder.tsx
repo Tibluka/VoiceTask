@@ -36,8 +36,24 @@ const recordingOptions = {
     },
 };
 
+interface ConsultResult {
+    category: string;
+    description: string;
+    date: string;
+    value: number;
+    type: 'SPENDING' | 'REVENUE';
+}
+
+interface TranscriptionResponse {
+    gpt_answer: string;
+    description: string;
+    consult_results?: ConsultResult[];
+}
+
 export default function AudioRecorder() {
-    const [sentMessages, setSentMessages] = useState<Array<{ message: string }>>([]);
+    const [sentMessages, setSentMessages] = useState<
+        Array<{ message: string; consult_results?: ConsultResult[] }>
+    >([]);
     const [recording, setRecording] = useState<Audio.Recording | null>(null);
     const [isRecording, setIsRecording] = useState(false);
     const [recordedURI, setRecordedURI] = useState<string | null>(null);
@@ -109,12 +125,12 @@ export default function AudioRecorder() {
                 setSentMessages(prev => [
                     {
                         message: transcription.gpt_answer,
-                        consult_results: transcription.consult_results
+                        consult_results: transcription.consult_results,
                     },
                     {
-                        message: transcription.description
+                        message: transcription.description,
                     },
-                    ...prev
+                    ...prev,
                 ]);
             }
         } catch (error) {
@@ -122,32 +138,30 @@ export default function AudioRecorder() {
         }
     };
 
-    const sendAudioToApi = async (fileUri: string) => {
+    const sendAudioToApi = async (fileUri: string): Promise<TranscriptionResponse | undefined> => {
         try {
             const formData = new FormData();
-            formData.append("file", {
+            formData.append('file', {
                 uri: fileUri,
-                name: "audio.m4a",
-                type: "audio/mp4",
+                name: 'audio.m4a',
+                type: 'audio/mp4',
             } as any);
 
-            const res = await fetch("http://192.168.18.4:5004/transcribe", {
-                method: "POST",
+            const res = await fetch('http://192.168.18.4:5004/transcribe', {
+                method: 'POST',
                 body: formData,
             });
 
             if (!res.ok) throw new Error(`Erro na API: ${res.status}`);
 
             const data = await res.json();
-            console.log(data.transcription.gpt_answer);
-
             return {
                 gpt_answer: data.transcription.gpt_answer,
                 description: data.transcription.description,
-                consult_results: data.transcription.consult_results
+                consult_results: data.transcription.consult_results,
             };
         } catch (error) {
-            console.error("Erro ao enviar áudio:", error);
+            console.error('Erro ao enviar áudio:', error);
         }
     };
 
@@ -156,56 +170,37 @@ export default function AudioRecorder() {
             <FlatList
                 data={sentMessages}
                 keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item }: any) => (
+                renderItem={({ item }) => (
                     <View style={styles.messageContainer}>
-                        {/* Mensagem padrão */}
                         <View style={styles.messageBubble}>
                             <Text style={styles.messageText}>{item.message}</Text>
                         </View>
 
-                        {/* Se houver consult_results, renderiza tabela */}
-                        {item.consult_results && Array.isArray(item.consult_results) && item.consult_results.length > 0 && (
-                            <View style={styles.tableContainer}>
-                                {/* Cabeçalho */}
-                                <View style={styles.tableRowHeader}>
-                                    <Text style={styles.tableHeaderText}>Categoria</Text>
-                                    <Text style={styles.tableHeaderText}>Data</Text>
-                                    <Text style={styles.tableHeaderText}>Descrição</Text>
-                                    <Text style={styles.tableHeaderText}>Tipo</Text>
-                                    <Text style={styles.tableHeaderText}>Valor</Text>
-                                </View>
-
-                                {/* Linhas da tabela */}
-                                {item.consult_results.map((row: any, i: any) => (
-                                    <View key={i} style={styles.tableRow}>
-                                        <Text style={styles.tableCell}>{row.category}</Text>
-                                        <Text style={styles.tableCell}>{moment(row.date).format('DD/MM/yyyy')}</Text>
-                                        <Text style={styles.tableCell}>{row.description}</Text>
-                                        <Text style={styles.tableCell}>{row.type}</Text>
-                                        <Text style={styles.tableCell}>{row.value}</Text>
-                                    </View>
-                                ))}
-
-                                {/* Linha de total */}
-                                <View style={styles.totalRow}>
-                                    <Text style={styles.totalLabel}>Total</Text>
-                                    <Text style={styles.totalSpacer} />
-                                    <Text style={styles.totalSpacer} />
-                                    <Text style={styles.totalSpacer} />
-                                    <Text style={styles.totalValue}>
-                                        R$ {item.consult_results.reduce((acc: any, cur: any) => acc + Number(cur.value || 0), 0).toFixed(2)}
+                        {item.consult_results?.map((row, i) => (
+                            <View key={i} style={styles.card}>
+                                <View style={styles.cardLeft}>
+                                    <Text style={styles.cardCategory}>{row.category}</Text>
+                                    <Text style={styles.cardDescription}>{row.description}</Text>
+                                    <Text style={styles.cardDate}>
+                                        {moment(row.date).format('DD/MM/yyyy')}
                                     </Text>
                                 </View>
+                                <Text
+                                    style={[
+                                        styles.cardValue,
+                                        row.type === 'SPENDING' ? styles.valueExpense : styles.valueIncome,
+                                    ]}
+                                >
+                                    R$ {Number(row.value || 0).toFixed(2)}
+                                </Text>
                             </View>
-                        )}
-
+                        ))}
                     </View>
                 )}
                 style={styles.messageList}
                 contentContainerStyle={styles.messageListContent}
                 inverted
             />
-
 
             {loading && (
                 <View style={styles.loadingOverlay}>
@@ -232,143 +227,95 @@ export default function AudioRecorder() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, paddingBottom: 0 },
-    messageList: {
-        flex: 1,
-        paddingVertical: 160
-    },
-    messageContainer: {
-        marginBottom: 16,
-    },
-
-    tableContainer: {
-        marginTop: 8,
-        backgroundColor: '#f0f0f0',
+    container: { flex: 1 },
+    messageList: { flex: 1, paddingVertical: 160 },
+    messageContainer: { marginBottom: 16 },
+    messageBubble: {
+        backgroundColor: '#e6e6fa',
+        padding: 12,
         borderRadius: 8,
-        padding: 8,
+        marginBottom: 8,
     },
-
-    tableRowHeader: {
-        flexDirection: 'row',
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-        paddingBottom: 4,
-        marginBottom: 4,
-    },
-
-    tableRow: {
-        flexDirection: 'row',
-        marginBottom: 4,
-    },
-
-    tableHeaderText: {
-        flex: 1,
-        fontWeight: 'bold',
-        fontSize: 12,
-    },
-
-    tableCell: {
-        flex: 1,
-        fontSize: 12,
-    },
+    messageText: { fontSize: 14, color: '#333' },
     messageListContent: {
         paddingHorizontal: 16,
         paddingTop: 16,
-        marginBottom: 160
+        marginBottom: 160,
     },
     loadingOverlay: {
         position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
+        top: 0, bottom: 0, left: 0, right: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingBottom: 220,
-        zIndex: 10,
     },
     loadingBox: {
         backgroundColor: '#fff',
-        padding: 16,
-        borderRadius: 12,
+        padding: 20,
+        borderRadius: 8,
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
     },
-    messageBubble: {
-        backgroundColor: '#E1FFC7',
-        padding: 12,
-        borderRadius: 16,
-        alignSelf: 'flex-end',
-        marginVertical: 6,
-        maxWidth: '80%',
-    },
-    totalRow: {
-        flexDirection: 'row',
-        borderTopWidth: 1,
-        borderTopColor: '#ccc',
-        paddingTop: 6,
-        marginTop: 6,
-    },
-
-    totalLabel: {
-        flex: 1,
-        fontWeight: 'bold',
-        fontSize: 12,
-    },
-
-    totalSpacer: {
-        flex: 1,
-    },
-
-    totalValue: {
-        flex: 1,
-        fontWeight: 'bold',
-        fontSize: 12,
-        textAlign: 'right',
-    },
-    messageText: {
-        fontSize: 16,
+    loadingText: {
+        marginTop: 12,
+        fontSize: 14,
         color: '#333',
     },
     recorderContainer: {
         position: 'absolute',
-        bottom: 110,
-        left: 0,
-        right: 0,
-        alignItems: 'center',
+        bottom: 120,
+        right: 24,
         justifyContent: 'center',
-        zIndex: 10,
+        alignItems: 'center',
     },
     micWrapper: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     micButton: {
         backgroundColor: '#4A90E2',
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        alignItems: 'center',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         justifyContent: 'center',
+        alignItems: 'center',
     },
     micRecording: {
-        backgroundColor: '#E94E77',
+        backgroundColor: '#d32f2f',
     },
-    loadingContainer: {
+    card: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 16,
+        backgroundColor: '#fff',
+        padding: 12,
+        marginBottom: 8,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    loadingText: {
-        marginTop: 8,
+    cardLeft: { flex: 1 },
+    cardCategory: {
+        fontWeight: '600',
+        fontSize: 14,
+        marginBottom: 2,
+        color: '#333',
+    },
+    cardDescription: {
+        fontSize: 13,
         color: '#666',
+        marginBottom: 2,
     },
+    cardDate: {
+        fontSize: 12,
+        color: '#999',
+    },
+    cardValue: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 8,
+    },
+    valueExpense: { color: '#e53935' },
+    valueIncome: { color: '#43a047' },
 });
