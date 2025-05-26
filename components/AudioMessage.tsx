@@ -9,7 +9,7 @@ interface Props {
     consult_results?: ConsultResult[];
 }
 
-export const AudioMessage = ({ message, consult_results }: Props) => {
+export const AudioMessage = ({ message, consult_results }: Props) => {    
     const total = consult_results?.reduce((acc, cur) => {
         const value = Number(cur.value || 0);
         return cur.type === 'SPENDING' ? acc - value : acc + value;

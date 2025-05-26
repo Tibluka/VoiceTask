@@ -9,7 +9,7 @@ export const sendAudioToApi = async (fileUri: string): Promise<TranscriptionResp
             type: 'audio/mp4',
         } as any);
 
-        const res = await fetch('https://voicetaskapi.onrender.com/transcribe', {
+        const res = await fetch('http://192.168.18.4:6002/transcribe', {
             method: 'POST',
             body: formData,
         });

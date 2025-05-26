@@ -47,7 +47,7 @@ export default function AudioRecorder() {
       <FlatList
         data={messages}
         keyExtractor={(_, i) => i.toString()}
-        renderItem={({ item }) => <AudioMessage message={item.description} {...item} />}
+        renderItem={({ item }) => <AudioMessage message={item.gpt_answer} {...item} />}
         contentContainerStyle={styles.list}
         inverted
       />
