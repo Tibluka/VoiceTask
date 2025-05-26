@@ -9,6 +9,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
+  
   return (
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <SafeAreaProvider>
