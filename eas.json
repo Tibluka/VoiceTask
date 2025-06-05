@@ -9,12 +9,12 @@
       },
       "production": {
         "env": {
-          "API_URL": "https://voicetaskapi.onrender.com"
+          "EXPO_PUBLIC_API_URL": "https://voicetaskapi.onrender.com"
         }
       },
       "staging": {
         "env": {
-          "API_URL": "https://voicetaskapi.onrender.com"
+          "EXPO_PUBLIC_API_URL": "https://voicetaskapi.onrender.com"
         }
       }
     }
