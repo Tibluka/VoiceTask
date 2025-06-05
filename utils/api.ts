@@ -1,30 +1,35 @@
-import { TranscriptionResponse } from '@/interfaces/Transcription';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-export const sendAudioToApi = async (fileUri: string): Promise<TranscriptionResponse | undefined> => {
-    try {
-        const formData = new FormData();
-        formData.append('file', {
-            uri: fileUri,
-            name: 'audio.m4a',
-            type: 'audio/mp4',
-        } as any);
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
-        const res = await fetch(`${apiUrl}/transcribe`, {
-            method: 'POST',
-            body: formData,
-        });
+export const apiRequest = async (
+    endpoint: string,
+    method: Method = 'GET',
+    body?: any,
+    isFormData = false
+) => {
 
-        if (!res.ok) throw new Error(`Erro na API: ${res.status}`);
+    const token = await AsyncStorage.getItem('token');
 
-        const data = await res.json();
-        return {
-            gpt_answer: data.transcription.gpt_answer,
-            description: data.transcription.description,
-            consult_results: data.transcription.consult_results,
-        };
-    } catch (error) {
-        console.error('Erro ao enviar áudio:', error);
+    const headers: Record<string, string> = {
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    const res = await fetch(`${apiUrl}${endpoint}`, {
+        method,
+        headers,
+        ...(body
+            ? { body: isFormData ? body : JSON.stringify(body) }
+            : {}),
+    });
+
+    if (!res.ok) {
+        const errorData = await res.text();
+        throw new Error(`Erro ${res.status}: ${errorData}`);
     }
+
+    return res.json();
 };

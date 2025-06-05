@@ -3,7 +3,7 @@ import { MicButton } from '@/components/MicButton';
 import { ThemedView } from '@/components/ThemedView';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { TranscriptionResponse } from '@/interfaces/Transcription';
-import { sendAudioToApi } from '@/utils/api';
+import { sendAudioToApi } from '@/services/transcription/transcription.service';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, FlatList, StyleSheet, Text, View } from 'react-native';
 
