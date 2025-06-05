@@ -9,7 +9,7 @@ interface Props {
     consult_results?: ConsultResult[];
 }
 
-export const AudioMessage = ({ message, consult_results }: Props) => {    
+export const AudioMessage = ({ message, consult_results }: Props) => {
     const total = consult_results?.reduce((acc, cur) => {
         const value = Number(cur.value || 0);
         return cur.type === 'SPENDING' ? acc - value : acc + value;
@@ -26,6 +26,7 @@ export const AudioMessage = ({ message, consult_results }: Props) => {
                     <View style={styles.cardLeft}>
                         <Text style={styles.cardCategory}>{row.category}</Text>
                         <Text style={styles.cardDescription}>{row.description}</Text>
+                        {row.installment_info && <Text style={styles.cardInstallment}>Parcela {row.installment_info}</Text>}
                         <Text style={styles.cardDate}>
                             {moment(row.date).format('DD/MM/yyyy')}
                         </Text>
@@ -54,7 +55,7 @@ export const AudioMessage = ({ message, consult_results }: Props) => {
 };
 
 const styles = StyleSheet.create({
-    messageContainer: { marginBottom: 16},
+    messageContainer: { marginBottom: 16 },
     messageBubble: {
         backgroundColor: '#e6e6fa',
         padding: 12,
@@ -86,6 +87,12 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: '#666',
         marginBottom: 2,
+    },
+    cardInstallment: {
+        color: '#666',
+        fontSize: 11,
+        fontWeight: 700,
+        marginVertical: 4
     },
     totalContainer: {
         backgroundColor: '#F1F8E9',

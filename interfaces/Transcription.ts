@@ -4,6 +4,7 @@ export interface ConsultResult {
     date: string;
     value: number;
     type: 'SPENDING' | 'REVENUE';
+    installment_info?: string;
 }
 
 export interface TranscriptionResponse {
