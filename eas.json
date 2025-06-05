@@ -7,6 +7,15 @@
       "preview": {
         "distribution": "internal"
       },
-      "production": {}
+      "production": {
+        "env": {
+          "API_URL": "https://voicetaskapi.onrender.com"
+        }
+      },
+      "staging": {
+        "env": {
+          "API_URL": "https://voicetaskapi.onrender.com"
+        }
+      }
     }
 }  
