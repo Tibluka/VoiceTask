@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -18,8 +17,6 @@ export const apiRequest = async (
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
-
-    Alert.alert('url',apiUrl)
 
     const res = await fetch(`${apiUrl}${endpoint}`, {
         method,
