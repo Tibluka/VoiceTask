@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   loaderText: { marginTop: 10, fontSize: 14, color: '#333' },
   micContainer: {
     position: 'absolute',
-    bottom: 120,
+    bottom: 30,
     right: 24,
   },
 });

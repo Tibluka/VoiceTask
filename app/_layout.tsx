@@ -38,7 +38,18 @@ export default function RootLayout() {
   }
 
   if (!isLoggedIn) {
-    return <Login />;
+    return (
+      <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+        <SafeAreaProvider>
+          <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#fff' }}>
+            <Login />
+
+            <StatusBar style={isDark ? 'light' : 'dark'} />
+          </SafeAreaView>
+        </SafeAreaProvider>
+      </ThemeProvider>
+
+    );
   }
 
   return (
