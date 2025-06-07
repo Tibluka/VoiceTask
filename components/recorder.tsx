@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, FlatList, StyleSheet, Text, View } from 'react-native';
 
 export default function AudioRecorder() {
-  const { isRecording, startRecording, stopRecording } = useAudioRecorder();
+  const { isRecording, startRecording, stopRecording, cancelRecording } = useAudioRecorder();
   const [messages, setMessages] = useState<TranscriptionResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -25,6 +25,10 @@ export default function AudioRecorder() {
       pulseAnim.setValue(1);
     }
   }, [isRecording]);
+
+  const onCancel = () => {
+    cancelRecording();
+  };
 
   const handleMicPress = async () => {
 
@@ -67,6 +71,7 @@ export default function AudioRecorder() {
 
       <View style={styles.micContainer}>
         <MicButton
+          onCancel={onCancel}
           isRecording={isRecording}
           onPress={handleMicPress}
           pulseAnim={pulseAnim}

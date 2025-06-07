@@ -1,11 +1,12 @@
+import { Header } from '@/components/Header';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAuthStore } from '@/zustand/AuthStore/useAuthStore';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AudioRecorderExample from '../components/recorder';
 import Login from './(auth)/layout';
 
 export default function RootLayout() {
@@ -54,11 +55,10 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <SafeAreaProvider>
+
         <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#fff' }}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
+          <Header isDark={isDark} />
+          <AudioRecorderExample />
           <StatusBar style={isDark ? 'light' : 'dark'} />
         </SafeAreaView>
       </SafeAreaProvider>

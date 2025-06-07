@@ -65,5 +65,16 @@ export const useAudioRecorder = () => {
         }
     };
 
-    return { recording, isRecording, recordedURI, startRecording, stopRecording };
+    const cancelRecording = async () => {
+        if (recording) {
+            try {
+                await recording.stopAndUnloadAsync();
+            } catch { }
+        }
+        setRecording(null);
+        setIsRecording(false);
+        setRecordedURI(null);
+    };
+
+    return { recording, isRecording, recordedURI, startRecording, stopRecording, cancelRecording };
 };
