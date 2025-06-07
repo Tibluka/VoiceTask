@@ -7,8 +7,8 @@
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "update:prod": "npx eas update --channel production",
-    "update:dev": "npx eas update --channel preview",
+    "update:dev": "cp .env.dev .env && npx eas update --channel preview",
+    "update:prod": "cp .env.prd .env && npx eas update --channel production",
     "web": "expo start --web",
     "lint": "expo lint"
   },
