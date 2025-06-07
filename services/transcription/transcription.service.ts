@@ -13,14 +13,10 @@ export const sendAudioToApi = async (
         } as any);
 
         const data = await apiRequest('/transcribe', 'POST', formData, true);
+        console.log(data.transcription);
 
-        return {
-            gpt_answer: data.transcription.gpt_answer,
-            description: data.transcription.description,
-            consult_results: data.transcription.consult_results,
-        };
+        return data.transcription;
     } catch (error) {
-        debugger
         console.error('Erro ao enviar áudio:', error);
     }
 };

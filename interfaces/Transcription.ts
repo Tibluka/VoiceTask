@@ -11,4 +11,5 @@ export interface TranscriptionResponse {
     gpt_answer: string;
     description: string;
     consult_results?: ConsultResult[];
+    chart_data?: any;
 }  

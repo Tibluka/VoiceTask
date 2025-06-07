@@ -27,13 +27,13 @@ export default function AudioRecorder() {
   }, [isRecording]);
 
   const handleMicPress = async () => {
+
     if (isRecording) {
       setLoading(true);
       const uri = await stopRecording();
       if (uri) {
         const transcription = await sendAudioToApi(uri);
-        console.log(transcription);
-        
+
         if (transcription) setMessages(prev => [transcription, ...prev]);
       }
       setLoading(false);
@@ -47,7 +47,12 @@ export default function AudioRecorder() {
       <FlatList
         data={messages}
         keyExtractor={(_, i) => i.toString()}
-        renderItem={({ item }) => <AudioMessage message={item.gpt_answer} {...item} />}
+        renderItem={({ item }) =>
+          <AudioMessage
+            message={item.gpt_answer}
+            chart_data={item.chart_data}
+            consult_results={item.consult_results} />
+        }
         contentContainerStyle={styles.list}
         inverted
       />
@@ -59,6 +64,7 @@ export default function AudioRecorder() {
           </View>
         </View>
       )}
+
       <View style={styles.micContainer}>
         <MicButton
           isRecording={isRecording}

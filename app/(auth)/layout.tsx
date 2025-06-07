@@ -33,6 +33,8 @@ export default function Login() {
             setLoading(true);
             const response = await login(email, senha);
             useAuthStore.getState().setToken(response.token);
+            console.log(response.token);
+            
         } catch (error: any) {
             let message = 'Erro desconhecido, tente novamente.';
 

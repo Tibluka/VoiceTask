@@ -42,9 +42,8 @@ export default function RootLayout() {
       <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
         <SafeAreaProvider>
           <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#fff' }}>
-            <Login />
-
             <StatusBar style={isDark ? 'light' : 'dark'} />
+            <Login />
           </SafeAreaView>
         </SafeAreaProvider>
       </ThemeProvider>

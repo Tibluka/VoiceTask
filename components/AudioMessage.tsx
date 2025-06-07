@@ -3,17 +3,69 @@ import { formatCurrency } from '@/utils/format';
 import moment from 'moment';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import ChartScreen from './ChartScreen';
 
 interface Props {
     message: string;
     consult_results?: ConsultResult[];
+    chart_data: {
+        chartType: 'pie' | 'pyramid' | 'bar' | 'radar' | 'line';
+        data: {
+            value: number,
+            label?: string
+        }[],
+    };
 }
 
-export const AudioMessage = ({ message, consult_results }: Props) => {
-    const total = consult_results?.reduce((acc, cur) => {
-        const value = Number(cur.value || 0);
-        return cur.type === 'SPENDING' ? acc - value : acc + value;
-    }, 0) ?? 0;
+export const AudioMessage = ({ message, consult_results, chart_data }: Props) => {
+
+    const renderResults = () => {
+        const total = consult_results?.reduce((acc, cur) => {
+            const value = Number(cur.value || 0);
+            return cur.type === 'SPENDING' ? acc - value : acc + value;
+        }, 0) ?? 0;
+
+        if (chart_data || !consult_results || consult_results.length === 0) return null;
+
+        return (
+            <View style={{ marginVertical: 24 }}>
+                {consult_results && consult_results?.map((row, i) => (
+                    <View key={i} style={styles.card}>
+                        <View style={styles.cardLeft}>
+                            <Text style={styles.cardCategory}>{row.category}</Text>
+                            <Text style={styles.cardDescription}>{row.description}</Text>
+                            {row.installment_info && <Text style={styles.cardInstallment}>Parcela {row.installment_info}</Text>}
+                            <Text style={styles.cardDate}>
+                                {moment(row.date).format('DD/MM/yyyy')}
+                            </Text>
+                        </View>
+                        <Text
+                            style={[
+                                styles.cardValue,
+                                row.type === 'SPENDING' ? styles.valueExpense : styles.valueIncome,
+                            ]}
+                        >
+                            {new Intl.NumberFormat('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL',
+                            }).format(Number(row.value || 0))}
+                        </Text>
+                    </View>
+                ))}
+                <Text style={{ marginTop: 4, fontWeight: 'bold', color: total < 0 ? 'red' : 'green' }}>
+                    Total: {formatCurrency(total)}
+                </Text>
+            </View>
+
+        )
+    }
+
+    const renderChart = () => {
+        if (!chart_data) return;
+        return <View style={{ marginVertical: 24 }}>
+            <ChartScreen chartType={chart_data.chartType} data={chart_data.data} />
+        </View>
+    }
 
     return (
         <View style={styles.messageContainer}>
@@ -21,35 +73,9 @@ export const AudioMessage = ({ message, consult_results }: Props) => {
                 <Text style={styles.messageText}>{message}</Text>
             </View>
 
-            {consult_results && consult_results?.map((row, i) => (
-                <View key={i} style={styles.card}>
-                    <View style={styles.cardLeft}>
-                        <Text style={styles.cardCategory}>{row.category}</Text>
-                        <Text style={styles.cardDescription}>{row.description}</Text>
-                        {row.installment_info && <Text style={styles.cardInstallment}>Parcela {row.installment_info}</Text>}
-                        <Text style={styles.cardDate}>
-                            {moment(row.date).format('DD/MM/yyyy')}
-                        </Text>
-                    </View>
-                    <Text
-                        style={[
-                            styles.cardValue,
-                            row.type === 'SPENDING' ? styles.valueExpense : styles.valueIncome,
-                        ]}
-                    >
-                        {new Intl.NumberFormat('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                        }).format(Number(row.value || 0))}
-                    </Text>
-                </View>
-            ))}
+            {renderResults()}
 
-            {consult_results && consult_results?.length > 0 && (
-                <Text style={{ marginTop: 4, fontWeight: 'bold', color: total < 0 ? 'red' : 'green' }}>
-                    Total: {formatCurrency(total)}
-                </Text>
-            )}
+            {renderChart()}
         </View>
     );
 };
