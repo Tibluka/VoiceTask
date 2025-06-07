@@ -19,6 +19,8 @@ export const apiRequest = async (
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
+    console.log(apiUrl);
+
     try {
         const res = await fetch(`${apiUrl}${endpoint}`, {
             method,
