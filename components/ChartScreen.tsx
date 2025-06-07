@@ -45,12 +45,19 @@ export default function ChartScreen({ chartType, data }: ChartProps) {
                 )
             case 'pie':
                 return (
-                    <PieChart showText
-                        textColor="white"
-                        textSize={20}
-                        showTextBackground
-                        textBackgroundRadius={26}
-                        data={data} />
+                    <PieChart
+                        strokeColor="white"
+                        strokeWidth={4}
+                        donut
+                        data={data}
+                        innerCircleColor="#414141"
+                        innerCircleBorderWidth={4}
+                        innerCircleBorderColor={'white'}
+                        showValuesAsLabels={true}
+                        showText
+                        textSize={14}
+
+                    />
                 )
             case 'radar':
                 return (
@@ -58,13 +65,19 @@ export default function ChartScreen({ chartType, data }: ChartProps) {
                 )
             default:
                 return (
-                    <PieChart showText
-                        textColor="black"
-                        radius={150}
-                        textSize={20}
-                        showTextBackground
-                        textBackgroundRadius={26}
-                        data={data} />
+                    <PieChart
+                        strokeColor="white"
+                        strokeWidth={4}
+                        donut
+                        data={data}
+                        innerCircleColor="#414141"
+                        innerCircleBorderWidth={4}
+                        innerCircleBorderColor={'white'}
+                        showValuesAsLabels={true}
+                        showText
+                        textSize={14}
+
+                    />
                 )
         }
     }
