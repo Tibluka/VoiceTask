@@ -8,6 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "update:prod": "npx eas update --channel production",
+    "update:dev": "npx eas update --channel preview",
     "web": "expo start --web",
     "lint": "expo lint"
   },
