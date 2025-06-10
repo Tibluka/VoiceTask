@@ -1,18 +1,36 @@
-import React from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
+import { formatCurrency } from "@/utils/format";
+import React, { useMemo } from "react";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { BarChart, LineChart, PieChart, PopulationPyramid, RadarChart } from "react-native-gifted-charts";
 
 interface ChartProps {
     chartType: 'pie' | 'pyramid' | 'bar' | 'radar' | 'line';
     data: {
         value: number,
-        label?: string
+        label?: string,
+        text?: string
     }[]
 }
 
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
 export default function ChartScreen({ chartType, data }: ChartProps) {
     const screenWidth = Dimensions.get('window').width;
+
+    const chartData = useMemo(() =>
+        data.map(d => ({
+            value: d.value,
+            text: d.label,
+            color: getRandomColor(),
+        })),
+        [data]);
 
     const renderChartType = () => {
         switch (chartType) {
@@ -33,6 +51,8 @@ export default function ChartScreen({ chartType, data }: ChartProps) {
                 return (
                     <LineChart areaChart
                         data={data}
+                        rotateLabel={true}
+                        width={screenWidth - 100}
                         startFillColor="rgb(46, 217, 255)"
                         startOpacity={0.8}
                         endFillColor="rgb(203, 241, 250)"
@@ -45,19 +65,24 @@ export default function ChartScreen({ chartType, data }: ChartProps) {
                 )
             case 'pie':
                 return (
-                    <PieChart
-                        strokeColor="white"
-                        strokeWidth={4}
-                        donut
-                        data={data}
-                        innerCircleColor="#414141"
-                        innerCircleBorderWidth={4}
-                        innerCircleBorderColor={'white'}
-                        showValuesAsLabels={true}
-                        showText
-                        textSize={14}
-
-                    />
+                    <View style={styles.container}>
+                        <PieChart
+                            strokeColor="white"
+                            strokeWidth={2}
+                            data={chartData}
+                            innerCircleColor="#414141"
+                            innerCircleBorderColor={'white'}
+                        />
+                        <View style={styles.legendContainer}>
+                            {chartData.map((d, index) => (
+                                <View key={index} style={styles.legendItem}>
+                                    <View style={[styles.colorBox, { backgroundColor: d.color }]} />
+                                    <Text style={styles.legendLabel}>{d.text}: </Text>
+                                    <Text style={styles.legendValue}>{formatCurrency(d.value)}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
                 )
             case 'radar':
                 return (
@@ -93,5 +118,33 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center'
+    },
+    legendContainer: {
+        flexDirection: 'row', // deixa os itens em linha
+        flexWrap: 'wrap', // permite quebrar linha se não couber
+        justifyContent: 'center',
+        marginTop: 24,
+    },
+    legendItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 8,
+        marginVertical: 4,
+    },
+    colorBox: {
+        width: 14,
+        height: 14,
+        borderRadius: 7,
+        marginRight: 6,
+        color: 'white'
+    },
+    legendLabel: {
+        fontWeight: '600',
+        color: 'white'
+    },
+    legendValue: {
+        marginLeft: 4,
+        color: '#555',
+        fontWeight: 700
     }
 });
