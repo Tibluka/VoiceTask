@@ -15,6 +15,8 @@ import {
     View,
 } from 'react-native';
 
+const env = process.env.EXPO_PUBLIC_ENVIRONMENT;
+
 export default function Login() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
@@ -34,7 +36,7 @@ export default function Login() {
             const response = await login(email, senha);
             useAuthStore.getState().setToken(response.token);
             console.log(response.token);
-            
+
         } catch (error: any) {
             let message = 'Erro desconhecido, tente novamente.';
 
@@ -61,78 +63,89 @@ export default function Login() {
     };
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                style={styles.container}
-            >
-                <View
-                    style={[
-                        { backgroundColor: isDark ? '#000' : '#fff' },
-                    ]}
+        <>
+            <View style={[styles.envContainer, { backgroundColor: env === 'PRODUCTION' ? '#4CAF50' : '#90CAF9', }]}>
+                <Text style={{ color: 'white', fontSize: 12 }}>{env}</Text>
+            </View>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    style={styles.container}
                 >
-                    <Text
+                    <View
                         style={[
-                            styles.title,
-                            { color: isDark ? '#fff' : '#000' },
+                            { backgroundColor: isDark ? '#000' : '#fff' },
                         ]}
                     >
-                        Bem-vindo
-                    </Text>
-
-                    <TextInput
-                        placeholder="Email"
-                        placeholderTextColor={isDark ? '#888' : '#aaa'}
-                        value={email}
-                        onChangeText={setEmail}
-                        style={[
-                            styles.input,
-                            {
-                                backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
-                                color: isDark ? '#fff' : '#000',
-                            },
-                        ]}
-                        autoCapitalize="none"
-                        keyboardType="email-address"
-                    />
-
-                    <TextInput
-                        placeholder="Senha"
-                        placeholderTextColor={isDark ? '#888' : '#aaa'}
-                        value={senha}
-                        onChangeText={setSenha}
-                        style={[
-                            styles.input,
-                            {
-                                backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
-                                color: isDark ? '#fff' : '#000',
-                            },
-                        ]}
-                        secureTextEntry
-                    />
-
-                    <TouchableOpacity
-                        onPress={handleLogin}
-                        disabled={loading}
-                        style={[
-                            styles.button,
-                            {
-                                backgroundColor: isDark ? '#333' : '#444',
-                                opacity: loading ? 0.6 : 1,
-                            },
-                        ]}
-                    >
-                        <Text style={styles.buttonText}>
-                            {loading ? 'Entrando...' : 'Entrar'}
+                        <Text
+                            style={[
+                                styles.title,
+                                { color: isDark ? '#fff' : '#000' },
+                            ]}
+                        >
+                            Bem-vindo
                         </Text>
-                    </TouchableOpacity>
-                </View>
-            </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
+
+                        <TextInput
+                            placeholder="Email"
+                            placeholderTextColor={isDark ? '#888' : '#aaa'}
+                            value={email}
+                            onChangeText={setEmail}
+                            style={[
+                                styles.input,
+                                {
+                                    backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                                    color: isDark ? '#fff' : '#000',
+                                },
+                            ]}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                        />
+
+                        <TextInput
+                            placeholder="Senha"
+                            placeholderTextColor={isDark ? '#888' : '#aaa'}
+                            value={senha}
+                            onChangeText={setSenha}
+                            style={[
+                                styles.input,
+                                {
+                                    backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                                    color: isDark ? '#fff' : '#000',
+                                },
+                            ]}
+                            secureTextEntry
+                        />
+
+                        <TouchableOpacity
+                            onPress={handleLogin}
+                            disabled={loading}
+                            style={[
+                                styles.button,
+                                {
+                                    backgroundColor: isDark ? '#333' : '#444',
+                                    opacity: loading ? 0.6 : 1,
+                                },
+                            ]}
+                        >
+                            <Text style={styles.buttonText}>
+                                {loading ? 'Entrando...' : 'Entrar'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </KeyboardAvoidingView>
+            </TouchableWithoutFeedback>
+        </>
     );
 }
 
 const styles = StyleSheet.create({
+    envContainer: {
+        padding: 8,
+        borderRadius: 4,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
     container: {
         flex: 1,
         paddingHorizontal: 24,
