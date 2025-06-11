@@ -31,13 +31,11 @@ export default function AudioRecorder() {
   };
 
   const handleMicPress = async () => {
-
     if (isRecording) {
       setLoading(true);
       const uri = await stopRecording();
       if (uri) {
         const transcription = await sendAudioToApi(uri);
-
         if (transcription) setMessages(prev => [transcription, ...prev]);
       }
       setLoading(false);
@@ -60,25 +58,26 @@ export default function AudioRecorder() {
     return null;
   };
 
-
   return (
     <ThemedView style={styles.container}>
-
-      {
-        messages.length > 0 &&
+      {messages.length > 0 && (
         <FlatList
           data={messages}
           keyExtractor={(_, i) => i.toString()}
-          renderItem={({ item }) =>
+          renderItem={({ item }) => (
             <AudioMessage
               message={item.gpt_answer}
               chart_data={item.chart_data}
-              consult_results={item.consult_results} />
-          }
-          contentContainerStyle={styles.list}
+              consult_results={item.consult_results}
+            />
+          )}
+          contentContainerStyle={[
+            styles.list,
+            { paddingBottom: isRecording || loading ? 160 : 120 }
+          ]}
           inverted
         />
-      }
+      )}
 
       {loading && (
         <View style={styles.overlay}>
@@ -89,9 +88,7 @@ export default function AudioRecorder() {
         </View>
       )}
 
-      {
-        renderInitialGreeting()
-      }
+      {renderInitialGreeting()}
 
       <View style={styles.micContainer}>
         <MicButton
@@ -111,7 +108,7 @@ const styles = StyleSheet.create({
   greetingContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1
+    flex: 1,
   },
   appTitle: {
     fontSize: 28,
@@ -126,7 +123,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     lineHeight: 26,
   },
-  list: { paddingHorizontal: 16, paddingVertical: 120 },
+  list: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    // paddingBottom agora é ajustado dinamicamente
+  },
   overlay: {
     position: 'absolute',
     top: 0, left: 0, right: 0, bottom: 0,
@@ -140,7 +141,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  loaderText: { marginTop: 10, fontSize: 14, color: '#333' },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#333',
+  },
   micContainer: {
     position: 'absolute',
     bottom: 30,

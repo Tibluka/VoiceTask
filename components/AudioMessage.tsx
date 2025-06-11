@@ -115,7 +115,6 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
         }
     };
 
-
     const renderResults = () => {
         const total = results.reduce((acc, cur) => {
             const value = Number(cur.value || 0);
@@ -165,7 +164,10 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
 };
 
 const styles = StyleSheet.create({
-    messageContainer: { marginBottom: 16 },
+    messageContainer: {
+        marginBottom: 16,
+        flexShrink: 1, // 👈 permite que o item encolha dentro da FlatList
+    },
     messageBubble: {
         backgroundColor: '#e6e6fa',
         padding: 12,
