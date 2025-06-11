@@ -5,6 +5,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AudioRecorderExample from '../components/recorder';
 import Login from './(auth)/layout';
@@ -55,10 +56,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <SafeAreaProvider>
-
         <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#fff' }}>
           <Header isDark={isDark} />
-          <AudioRecorderExample />
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <AudioRecorderExample />
+          </GestureHandlerRootView>
           <StatusBar style={isDark ? 'light' : 'dark'} />
         </SafeAreaView>
       </SafeAreaProvider>

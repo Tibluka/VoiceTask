@@ -1,9 +1,20 @@
 import { CATEGORY_TRANSLATIONS } from '@/constants/CategoryTranslations';
 import { ConsultResult } from '@/interfaces/Transcription';
+import { deleteSpending } from '@/services/spendings/spendings.service';
 import { formatCurrency } from '@/utils/format';
 import moment from 'moment';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
+import {
+    Gesture,
+    GestureDetector,
+} from 'react-native-gesture-handler';
+import Animated, {
+    runOnJS,
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
+} from 'react-native-reanimated';
 import ChartScreen from './ChartScreen';
 
 interface Props {
@@ -12,70 +23,142 @@ interface Props {
     chart_data: {
         chartType: 'pie' | 'pyramid' | 'bar' | 'radar' | 'line';
         data: {
-            value: number,
-            label?: string
-        }[],
+            value: number;
+            label?: string;
+        }[];
     };
 }
 
+const SwipeableRow = ({
+    item,
+    onDelete,
+}: {
+    item: ConsultResult;
+    onDelete: (item: ConsultResult, resetTranslate: () => void) => void;
+}) => {
+    const translateX = useSharedValue(0);
+    const threshold = -200;
+
+    const resetTranslate = () => {
+        translateX.value = withSpring(0);
+    };
+
+    const panGesture = Gesture.Pan()
+        .onUpdate((e) => {
+            if (e.translationX < 0) {
+                translateX.value = e.translationX;
+            }
+        })
+        .onEnd(() => {
+            if (translateX.value < threshold) {
+                runOnJS(onDelete)(item, resetTranslate);
+            } else {
+                translateX.value = withSpring(0);
+            }
+        });
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: translateX.value }],
+    }));
+
+    return (
+        <GestureDetector gesture={panGesture}>
+            <Animated.View style={[styles.card, animatedStyle]}>
+                <View style={styles.cardLeft}>
+                    <Text style={styles.cardCategory}>
+                        {CATEGORY_TRANSLATIONS[item.category] || item.category}
+                    </Text>
+                    <Text style={styles.cardDescription}>{item.description}</Text>
+                    {item.installment_info && (
+                        <Text style={styles.cardInstallment}>Parcela {item.installment_info}</Text>
+                    )}
+                    <Text style={styles.cardDate}>
+                        {moment(item.date).format('DD/MM/yyyy')}
+                    </Text>
+                </View>
+                <Text
+                    style={[
+                        styles.cardValue,
+                        item.type === 'SPENDING' ? styles.valueExpense : styles.valueIncome,
+                    ]}
+                >
+                    {formatCurrency(Number(item.value || 0))}
+                </Text>
+            </Animated.View>
+        </GestureDetector>
+    );
+};
+
 export const AudioMessage = ({ message, consult_results, chart_data }: Props) => {
+    const [results, setResults] = useState(consult_results ?? []);
+
+    const handleDelete = (item: ConsultResult, resetTranslate: () => void) => {
+        Alert.alert('Remover registro', 'Deseja realmente remover esse registro?', [
+            { text: 'Cancelar', style: 'cancel', onPress: () => resetTranslate() },
+            {
+                text: 'Remover',
+                style: 'destructive',
+                onPress: () => {
+                    deleteAndUpdate(item, resetTranslate);
+                },
+            },
+        ]);
+    };
+
+    const deleteAndUpdate = async (item: ConsultResult, resetTranslate: () => void) => {
+        try {
+            await deleteSpending(item._id);
+            setResults((prev) => prev.filter((r) => r._id !== item._id));
+        } catch (error) {
+            console.error('Erro ao deletar:', error);
+            resetTranslate();
+        }
+    };
+
 
     const renderResults = () => {
-        const total = consult_results?.reduce((acc, cur) => {
+        const total = results.reduce((acc, cur) => {
             const value = Number(cur.value || 0);
             return cur.type === 'SPENDING' ? acc - value : acc + value;
-        }, 0) ?? 0;
+        }, 0);
 
-        if (chart_data || !consult_results || consult_results.length === 0) return null;
+        if (chart_data || results.length === 0) return null;
 
         return (
             <View style={{ marginVertical: 24 }}>
-                {consult_results && consult_results?.map((row, i) => (
-                    <View key={i} style={styles.card}>
-                        <View style={styles.cardLeft}>
-                            <Text style={styles.cardCategory}>{CATEGORY_TRANSLATIONS[row.category] || row.category}</Text>
-                            <Text style={styles.cardDescription}>{row.description}</Text>
-                            {row.installment_info && <Text style={styles.cardInstallment}>Parcela {row.installment_info}</Text>}
-                            <Text style={styles.cardDate}>
-                                {moment(row.date).format('DD/MM/yyyy')}
-                            </Text>
-                        </View>
-                        <Text
-                            style={[
-                                styles.cardValue,
-                                row.type === 'SPENDING' ? styles.valueExpense : styles.valueIncome,
-                            ]}
-                        >
-                            {new Intl.NumberFormat('pt-BR', {
-                                style: 'currency',
-                                currency: 'BRL',
-                            }).format(Number(row.value || 0))}
-                        </Text>
+                {results.map((row, i) => (
+                    <View key={i} style={{ position: 'relative' }}>
+                        <SwipeableRow item={row} onDelete={handleDelete} />
                     </View>
                 ))}
-                <Text style={{ marginTop: 4, fontWeight: 'bold', color: total < 0 ? 'red' : 'green' }}>
+                <Text
+                    style={{
+                        marginTop: 4,
+                        fontWeight: 'bold',
+                        color: total < 0 ? 'red' : 'green',
+                    }}
+                >
                     Total: {formatCurrency(total)}
                 </Text>
             </View>
-
-        )
-    }
+        );
+    };
 
     const renderChart = () => {
         if (!chart_data) return;
-        return <View style={{ marginVertical: 24 }}>
-            <ChartScreen chartType={chart_data.chartType} data={chart_data.data} />
-        </View>
-    }
+        return (
+            <View style={{ marginVertical: 24 }}>
+                <ChartScreen chartType={chart_data.chartType} data={chart_data.data} />
+            </View>
+        );
+    };
 
     return (
         <View style={styles.messageContainer}>
             <View style={styles.messageBubble}>
                 <Text style={styles.messageText}>{message}</Text>
             </View>
-
             {renderResults()}
-
             {renderChart()}
         </View>
     );
@@ -118,20 +201,8 @@ const styles = StyleSheet.create({
     cardInstallment: {
         color: '#666',
         fontSize: 11,
-        fontWeight: 700,
-        marginVertical: 4
-    },
-    totalContainer: {
-        backgroundColor: '#F1F8E9',
-        borderRadius: 10,
-        padding: 12,
-        alignItems: 'flex-end',
-        marginTop: 8,
-    },
-    totalText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#33691E',
+        fontWeight: '700',
+        marginVertical: 4,
     },
     cardDate: {
         fontSize: 12,
@@ -144,4 +215,15 @@ const styles = StyleSheet.create({
     },
     valueExpense: { color: '#e53935' },
     valueIncome: { color: '#43a047' },
+    deleteOverlay: {
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 8,
+        width: 64,
+        backgroundColor: '#e53935',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+    },
 });

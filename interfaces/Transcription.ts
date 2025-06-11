@@ -1,4 +1,5 @@
 export interface ConsultResult {
+    _id: string;
     category: string;
     description: string;
     date: string;
