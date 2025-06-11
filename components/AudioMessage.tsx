@@ -1,3 +1,4 @@
+import { CATEGORY_TRANSLATIONS } from '@/constants/CategoryTranslations';
 import { ConsultResult } from '@/interfaces/Transcription';
 import { formatCurrency } from '@/utils/format';
 import moment from 'moment';
@@ -32,7 +33,7 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
                 {consult_results && consult_results?.map((row, i) => (
                     <View key={i} style={styles.card}>
                         <View style={styles.cardLeft}>
-                            <Text style={styles.cardCategory}>{row.category}</Text>
+                            <Text style={styles.cardCategory}>{CATEGORY_TRANSLATIONS[row.category] || row.category}</Text>
                             <Text style={styles.cardDescription}>{row.description}</Text>
                             {row.installment_info && <Text style={styles.cardInstallment}>Parcela {row.installment_info}</Text>}
                             <Text style={styles.cardDate}>
