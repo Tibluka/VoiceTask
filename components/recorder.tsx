@@ -46,20 +46,40 @@ export default function AudioRecorder() {
     }
   };
 
+  const renderInitialGreeting = () => {
+    if (messages.length === 0 && !loading) {
+      return (
+        <View style={styles.greetingContainer}>
+          <Text style={styles.appTitle}>VoiceTask</Text>
+          <Text style={styles.greetingText}>
+            Olá! Toque no microfone para começar uma conversa por voz 📣
+          </Text>
+        </View>
+      );
+    }
+    return null;
+  };
+
+
   return (
     <ThemedView style={styles.container}>
-      <FlatList
-        data={messages}
-        keyExtractor={(_, i) => i.toString()}
-        renderItem={({ item }) =>
-          <AudioMessage
-            message={item.gpt_answer}
-            chart_data={item.chart_data}
-            consult_results={item.consult_results} />
-        }
-        contentContainerStyle={styles.list}
-        inverted
-      />
+
+      {
+        messages.length > 0 &&
+        <FlatList
+          data={messages}
+          keyExtractor={(_, i) => i.toString()}
+          renderItem={({ item }) =>
+            <AudioMessage
+              message={item.gpt_answer}
+              chart_data={item.chart_data}
+              consult_results={item.consult_results} />
+          }
+          contentContainerStyle={styles.list}
+          inverted
+        />
+      }
+
       {loading && (
         <View style={styles.overlay}>
           <View style={styles.loaderBox}>
@@ -68,6 +88,10 @@ export default function AudioRecorder() {
           </View>
         </View>
       )}
+
+      {
+        renderInitialGreeting()
+      }
 
       <View style={styles.micContainer}>
         <MicButton
@@ -84,6 +108,24 @@ export default function AudioRecorder() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  greetingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1
+  },
+  appTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#4A90E2',
+    marginBottom: 12,
+  },
+  greetingText: {
+    fontSize: 18,
+    color: '#555',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    lineHeight: 26,
+  },
   list: { paddingHorizontal: 16, paddingVertical: 120 },
   overlay: {
     position: 'absolute',
