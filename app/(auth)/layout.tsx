@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 const env = process.env.EXPO_PUBLIC_ENVIRONMENT;
+const api = process.env.EXPO_PUBLIC_API_URL;
 
 export default function Login() {
     const colorScheme = useColorScheme();
@@ -65,7 +66,8 @@ export default function Login() {
     return (
         <>
             <View style={[styles.envContainer, { backgroundColor: env === 'PRODUCTION' ? '#4CAF50' : '#90CAF9', }]}>
-                <Text style={{ color: 'white', fontSize: 12 }}>{env}</Text>
+                <Text style={{ color: 'white', fontSize: 12 }}>{env} - {api}</Text>
+
             </View>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <KeyboardAvoidingView
