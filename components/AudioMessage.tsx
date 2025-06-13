@@ -3,7 +3,7 @@ import { ConsultResult } from '@/interfaces/Transcription';
 import { deleteSpending } from '@/services/spendings/spendings.service';
 import { formatCurrency } from '@/utils/format';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -25,8 +25,6 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
     const [results, setResults] = useState(consult_results ?? []);
 
     const handleDelete = (item: ConsultResult) => {
-        console.log(item._id);
-
         Alert.alert('Remover registro', 'Deseja realmente remover esse registro?', [
             { text: 'Cancelar', style: 'cancel' },
             {
@@ -114,6 +112,12 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
             </View>
         );
     };
+
+    useEffect(() => {
+        if (consult_results) {
+            setResults(consult_results);
+        }
+    }, [consult_results]);
 
     return (
         <View style={styles.messageContainer}>
