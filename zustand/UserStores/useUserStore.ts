@@ -1,3 +1,4 @@
+import { fetchCurrentUser } from '@/services/auth/login.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
@@ -44,9 +45,19 @@ export const useUserStore = create<UserState>(set => ({
     },
 
     loadUser: async () => {
-        const stored = await AsyncStorage.getItem(USER_KEY);
-        if (stored) {
-            set({ user: JSON.parse(stored) as User });
+        try {
+            const stored = await AsyncStorage.getItem(USER_KEY);
+            if (stored) {
+                set({ user: JSON.parse(stored) as User });
+            } else {
+                const user = await fetchCurrentUser();
+                if (user) {
+                    await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
+                    set({ user: user });
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar usuário:', error);
         }
     },
 

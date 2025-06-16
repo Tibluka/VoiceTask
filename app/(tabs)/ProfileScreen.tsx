@@ -77,6 +77,12 @@ export default function ProfileScreen() {
             </View>
 
             <UserStats totalGoals={42} />
+
+            <View style={styles.logoutWrapper}>
+                <ThemedText onPress={logout} type="link" style={styles.logoutText}>
+                    Sair da conta
+                </ThemedText>
+            </View>
         </ScrollView>
     );
 }
@@ -107,4 +113,13 @@ const styles = StyleSheet.create({
         marginTop: 8,
         lineHeight: 20,
     },
+    logoutWrapper: {
+        marginTop: 32,
+        alignItems: 'center',
+    },
+    logoutText: {
+        fontSize: 16,
+        color: '#e53935',
+        textDecorationLine: 'underline',
+    }
 });
