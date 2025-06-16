@@ -39,3 +39,8 @@ export const isLoggedIn = async (): Promise<boolean> => {
     const token = await AsyncStorage.getItem('token');
     return !!token;
 };
+
+export async function fetchCurrentUser() {
+    const response = await apiRequest(`/auth/me`, 'GET', null);
+    return response;
+}

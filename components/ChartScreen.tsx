@@ -1,7 +1,8 @@
 import { formatCurrency } from "@/utils/format";
 import React, { useMemo } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, View } from "react-native";
 import { BarChart, LineChart, PieChart, PopulationPyramid, RadarChart } from "react-native-gifted-charts";
+import { ThemedText } from "./ThemedText";
 
 interface ChartProps {
     chartType: 'pie' | 'pyramid' | 'bar' | 'radar' | 'line';
@@ -77,8 +78,8 @@ export default function ChartScreen({ chartType, data }: ChartProps) {
                             {chartData.map((d, index) => (
                                 <View key={index} style={styles.legendItem}>
                                     <View style={[styles.colorBox, { backgroundColor: d.color }]} />
-                                    <Text style={styles.legendLabel}>{d.text}: </Text>
-                                    <Text style={styles.legendValue}>{formatCurrency(d.value)}</Text>
+                                    <ThemedText style={styles.legendLabel}>{d.text}: </ThemedText>
+                                    <ThemedText style={styles.legendValue}>{formatCurrency(d.value)}</ThemedText>
                                 </View>
                             ))}
                         </View>
@@ -140,7 +141,6 @@ const styles = StyleSheet.create({
     },
     legendLabel: {
         fontWeight: '600',
-        color: 'white'
     },
     legendValue: {
         marginLeft: 4,

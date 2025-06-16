@@ -5,7 +5,8 @@ import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { TranscriptionResponse } from '@/interfaces/Transcription';
 import { sendAudioToApi } from '@/services/transcription/transcription.service';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, FlatList, StyleSheet, View } from 'react-native';
+import { ThemedText } from './ThemedText';
 
 export default function AudioRecorder() {
   const { isRecording, startRecording, stopRecording, cancelRecording } = useAudioRecorder();
@@ -50,10 +51,10 @@ export default function AudioRecorder() {
     if (messages.length === 0 && !loading) {
       return (
         <View style={styles.greetingContainer}>
-          <Text style={styles.appTitle}>VoiceTask</Text>
-          <Text style={styles.greetingText}>
+          <ThemedText style={styles.appTitle}>VoiceTask</ThemedText>
+          <ThemedText style={styles.greetingText}>
             Olá! Toque no microfone para começar uma conversa por voz 📣
-          </Text>
+          </ThemedText>
         </View>
       );
     }
@@ -84,7 +85,7 @@ export default function AudioRecorder() {
         <View style={styles.overlay}>
           <View style={styles.loaderBox}>
             <ActivityIndicator size="large" color="#4A90E2" />
-            <Text style={styles.loaderText}>Transcrevendo áudio...</Text>
+            <ThemedText style={styles.loaderText}>Transcrevendo áudio...</ThemedText>
           </View>
         </View>
       )}
@@ -140,7 +141,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  loaderText: { marginTop: 10, fontSize: 14, color: '#333' },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#333'
+  },
   micContainer: {
     position: 'absolute',
     bottom: 30,

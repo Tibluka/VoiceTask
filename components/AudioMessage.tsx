@@ -4,10 +4,11 @@ import { deleteSpending } from '@/services/spendings/spendings.service';
 import { formatCurrency } from '@/utils/format';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ChartScreen from './ChartScreen';
+import { ThemedText } from './ThemedText';
 
 interface Props {
     message: string;
@@ -66,18 +67,18 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
                     >
                         <View style={styles.card}>
                             <View style={styles.cardLeft}>
-                                <Text style={styles.cardCategory}>
+                                <ThemedText style={styles.cardCategory}>
                                     {CATEGORY_TRANSLATIONS[row.category] || row.category}
-                                </Text>
-                                <Text style={styles.cardDescription}>{row.description}</Text>
+                                </ThemedText>
+                                <ThemedText style={styles.cardDescription}>{row.description}</ThemedText>
                                 {row.installment_info && (
-                                    <Text style={styles.cardInstallment}>Parcela {row.installment_info}</Text>
+                                    <ThemedText style={styles.cardInstallment}>Parcela {row.installment_info}</ThemedText>
                                 )}
-                                <Text style={styles.cardDate}>
+                                <ThemedText style={styles.cardDate}>
                                     {moment(row.date).format('DD/MM/yyyy')}
-                                </Text>
+                                </ThemedText>
                             </View>
-                            <Text
+                            <ThemedText
                                 style={[
                                     styles.cardValue,
                                     row.type === 'SPENDING' ? styles.valueExpense : styles.valueIncome,
@@ -87,11 +88,11 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
                                     style: 'currency',
                                     currency: 'BRL',
                                 }).format(Number(row.value || 0))}
-                            </Text>
+                            </ThemedText>
                         </View>
                     </Swipeable>
                 ))}
-                <Text
+                <ThemedText
                     style={{
                         marginTop: 4,
                         fontWeight: 'bold',
@@ -99,7 +100,7 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
                     }}
                 >
                     Total: {formatCurrency(total)}
-                </Text>
+                </ThemedText>
             </View>
         );
     };
@@ -122,7 +123,7 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
     return (
         <View style={styles.messageContainer}>
             <View style={styles.messageBubble}>
-                <Text style={styles.messageText}>{message}</Text>
+                <ThemedText style={styles.messageText}>{message}</ThemedText>
             </View>
             {renderResults()}
             {renderChart()}
@@ -138,7 +139,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 8,
     },
-    messageText: { fontSize: 14, color: '#333' },
+    messageText: {
+        fontSize: 14,
+        color: '#333'
+    },
     card: {
         flexDirection: 'row',
         justifyContent: 'space-between',

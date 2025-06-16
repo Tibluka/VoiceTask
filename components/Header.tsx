@@ -1,12 +1,14 @@
 import { useAuthStore } from '@/zustand/AuthStore/useAuthStore';
 import React from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from './ThemedText';
 
 type HeaderProps = {
     isDark: boolean;
+    selectedIndex: number;
 };
 
-export const Header: React.FC<HeaderProps> = ({ isDark }) => {
+export const Header: React.FC<HeaderProps> = ({ isDark, selectedIndex }) => {
     const { clearToken } = useAuthStore();
 
     const handleLogout = () => {
@@ -22,9 +24,9 @@ export const Header: React.FC<HeaderProps> = ({ isDark }) => {
 
     return (
         <View style={[styles.container, { backgroundColor: isDark ? '#111' : '#f5f5f5' }]}>
-            <Text style={[styles.title, { color: isDark ? '#fff' : '#000' }]}>Registros</Text>
+            <ThemedText style={[styles.title]}>Registros</ThemedText>
             <TouchableOpacity onPress={handleLogout} style={styles.button}>
-                <Text style={styles.buttonText}>Sair</Text>
+                <ThemedText style={styles.buttonText}>Sair</ThemedText>
             </TouchableOpacity>
         </View>
     );

@@ -1,4 +1,5 @@
-import { login } from '@/services/auth/login.service';
+import { ThemedText } from '@/components/ThemedText';
+import { fetchCurrentUser, login } from '@/services/auth/login.service';
 import { useAuthStore } from '@/zustand/AuthStore/useAuthStore';
 import React, { useState } from 'react';
 import {
@@ -7,12 +8,11 @@ import {
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
-    Text,
     TextInput,
     TouchableOpacity,
     TouchableWithoutFeedback,
     useColorScheme,
-    View,
+    View
 } from 'react-native';
 
 const env = process.env.EXPO_PUBLIC_ENVIRONMENT;
@@ -36,6 +36,8 @@ export default function Login() {
             setLoading(true);
             const response = await login(email, senha);
             useAuthStore.getState().setToken(response.token);
+            const user = await fetchCurrentUser();
+            //await useUserStore.getState().setUser(user);
             console.log(response.token);
 
         } catch (error: any) {
@@ -66,7 +68,7 @@ export default function Login() {
     return (
         <>
             <View style={[styles.envContainer, { backgroundColor: env === 'PRODUCTION' ? '#4CAF50' : '#90CAF9', }]}>
-                <Text style={{ color: 'white', fontSize: 12 }}>{env} - {api}</Text>
+                <ThemedText style={{ fontSize: 12 }}>{env} - {api}</ThemedText>
 
             </View>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -79,14 +81,11 @@ export default function Login() {
                             { backgroundColor: isDark ? '#000' : '#fff' },
                         ]}
                     >
-                        <Text
-                            style={[
-                                styles.title,
-                                { color: isDark ? '#fff' : '#000' },
-                            ]}
+                        <ThemedText
+                            style={styles.title}
                         >
                             Bem-vindo
-                        </Text>
+                        </ThemedText>
 
                         <TextInput
                             placeholder="Email"
@@ -130,9 +129,9 @@ export default function Login() {
                                 },
                             ]}
                         >
-                            <Text style={styles.buttonText}>
+                            <ThemedText style={styles.buttonText}>
                                 {loading ? 'Entrando...' : 'Entrar'}
-                            </Text>
+                            </ThemedText>
                         </TouchableOpacity>
                     </View>
                 </KeyboardAvoidingView>
@@ -174,7 +173,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     buttonText: {
-        color: '#fff',
         fontWeight: '600',
         fontSize: 16,
     },
