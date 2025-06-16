@@ -11,15 +11,14 @@ import {
     ScrollView,
     StyleSheet,
     View,
-    useColorScheme
+    useColorScheme,
 } from 'react-native';
 
 export default function ProfileScreen() {
     const { user, refreshUser, loadUser, clearUser } = useUserStore();
     const { clearToken } = useAuthStore();
-    const colorScheme = useColorScheme();
+    const scheme = useColorScheme();
     const bg = useThemeColor({ light: '#fff', dark: '#000' }, 'background');
-
     const [refreshing, setRefreshing] = useState(false);
 
     const onRefresh = useCallback(async () => {
@@ -28,21 +27,22 @@ export default function ProfileScreen() {
         setRefreshing(false);
     }, []);
 
-    const handleLogout = () => {
+    useEffect(() => {
+        loadUser();
+    }, []);
+
+    const logout = () =>
         Alert.alert('Sair', 'Deseja realmente sair?', [
             { text: 'Cancelar', style: 'cancel' },
             {
-                text: 'Sair', style: 'destructive', onPress: () => {
-                    clearToken()
-                    clearUser()
-                }
+                text: 'Sair',
+                style: 'destructive',
+                onPress: () => {
+                    clearToken();
+                    clearUser();
+                },
             },
         ]);
-    };
-
-    useEffect(() => {
-        loadUser(); // carregar ao abrir o app
-    }, []);
 
     return (
         <ScrollView
@@ -51,31 +51,33 @@ export default function ProfileScreen() {
                 <RefreshControl
                     refreshing={refreshing}
                     onRefresh={onRefresh}
-                    tintColor={colorScheme === 'dark' ? '#fff' : '#000'}
+                    tintColor={scheme === 'dark' ? '#fff' : '#000'}
                 />
             }
             contentContainerStyle={styles.container}
         >
-            <View style={styles.header}>
+            <View style={styles.profileHeader}>
                 <Image
-                    source={{ uri: user?.avatar }}
+                    source={
+                        user?.avatar
+                            ? { uri: user.avatar }
+                            : require('@/assets/default-avatar.png')
+                    }
                     style={styles.avatar}
                 />
-                <View style={styles.headerDescription}>
-                    <ThemedText type="title" style={styles.username}>
-                        {user?.name}
+                <ThemedText type="title" style={styles.name}>
+                    {user?.name}
+                </ThemedText>
+
+                {user?.bio && (
+                    <ThemedText type="default" style={styles.bio}>
+                        {user.bio}
                     </ThemedText>
-
-                    <UserStats totalGoals={42} />
-
-                </View>
+                )}
             </View>
-            
-            <ThemedText type="default" style={styles.username}>
-                {user?.bio}
-            </ThemedText>
 
-        </ScrollView >
+            <UserStats totalGoals={42} />
+        </ScrollView>
     );
 }
 
@@ -83,40 +85,26 @@ const styles = StyleSheet.create({
     container: {
         paddingBottom: 40,
         paddingTop: 60,
-        paddingHorizontal: 16,
-        alignItems: 'flex-start',
+        paddingHorizontal: 24,
     },
-    header: {
-        flexDirection: 'row',
+    profileHeader: {
         alignItems: 'center',
-        marginBottom: 24
+        marginBottom: 32,
     },
-    headerDescription: {
-        marginLeft: 24
+    avatar: {
+        width: 96,
+        height: 96,
+        borderRadius: 48,
+        marginBottom: 12,
     },
-    avatar: { width: 96, height: 96, borderRadius: 48 },
-    username: {
-        marginTop: 8
+    name: {
+        textAlign: 'center',
+        marginBottom: 4,
     },
-    stats: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        width: '100%',
-        marginVertical: 24,
-    },
-    logoutButton: {
-        paddingVertical: 12,
-        paddingHorizontal: 32,
-        borderRadius: 20,
-        backgroundColor: '#4A90E2',
-    },
-    logoutButtonDark: {
-        backgroundColor: '#1e3a5f',
-    },
-    logoutText: {
-        color: '#fff',
-    },
-    logoutTextDark: {
-        color: '#ccc',
+    bio: {
+        textAlign: 'center',
+        color: '#666',
+        marginTop: 8,
+        lineHeight: 20,
     },
 });
