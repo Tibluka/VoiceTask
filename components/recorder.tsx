@@ -3,15 +3,18 @@ import { MicButton } from '@/components/MicButton';
 import { ThemedView } from '@/components/ThemedView';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { TranscriptionResponse } from '@/interfaces/Transcription';
+import { executeQuery } from '@/services/execute-query/execure-query.service';
 import { sendAudioToApi } from '@/services/transcription/transcription.service';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, FlatList, StyleSheet, View } from 'react-native';
 import { ThemedText } from './ThemedText';
+import { TypingIndicator } from './TypingIndicator';
 
 export default function AudioRecorder() {
   const { isRecording, startRecording, stopRecording, cancelRecording } = useAudioRecorder();
   const [messages, setMessages] = useState<TranscriptionResponse[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
+  const [thinking, setThinking] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -34,21 +37,23 @@ export default function AudioRecorder() {
   const handleMicPress = async () => {
 
     if (isRecording) {
-      setLoading(true);
+      setTranscribing(true);
       const uri = await stopRecording();
       if (uri) {
-        const transcription = await sendAudioToApi(uri);
-
-        if (transcription) setMessages(prev => [transcription, ...prev]);
+        const transcribedText: any = await sendAudioToApi(uri);
+        setTranscribing(false);
+        setThinking(true);
+        const response: any = await executeQuery(transcribedText);
+        setThinking(false);
+        if (response) setMessages(prev => [response, ...prev]);
       }
-      setLoading(false);
     } else {
       startRecording();
     }
   };
 
   const renderInitialGreeting = () => {
-    if (messages.length === 0 && !loading) {
+    if (messages.length === 0 && (!thinking && !transcribing)) {
       return (
         <View style={styles.greetingContainer}>
           <ThemedText style={styles.appTitle}>VoiceTask</ThemedText>
@@ -81,7 +86,12 @@ export default function AudioRecorder() {
         />
       }
 
-      {loading && (
+      {thinking && (
+        <>
+          <TypingIndicator />
+        </>
+      )}
+      {transcribing && (
         <View style={styles.overlay}>
           <View style={styles.loaderBox}>
             <ActivityIndicator size="large" color="#4A90E2" />
@@ -100,7 +110,7 @@ export default function AudioRecorder() {
           isRecording={isRecording}
           onPress={handleMicPress}
           pulseAnim={pulseAnim}
-          disabled={loading}
+          disabled={thinking}
         />
       </View>
     </ThemedView>

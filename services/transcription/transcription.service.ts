@@ -1,9 +1,8 @@
-import { TranscriptionResponse } from '@/interfaces/Transcription';
 import { apiRequest } from '@/utils/api';
 
 export const sendAudioToApi = async (
     fileUri: string
-): Promise<TranscriptionResponse | undefined> => {
+): Promise<{text: string} | undefined> => {
     try {
         const formData = new FormData();
         formData.append('file', {
@@ -13,9 +12,8 @@ export const sendAudioToApi = async (
         } as any);
 
         const data = await apiRequest('/transcribe', 'POST', formData, true);
-        console.log(data.transcription);
 
-        return data.transcription;
+        return data.transcribed_text;
     } catch (error) {
         console.error('Erro ao enviar áudio:', error);
     }
