@@ -3,6 +3,7 @@ import { UserStats } from '@/components/UserStats';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useAuthStore } from '@/zustand/AuthStore/useAuthStore';
 import { useUserStore } from '@/zustand/UserStores/useUserStore';
+import { MaterialIcons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     Alert,
@@ -10,14 +11,16 @@ import {
     RefreshControl,
     ScrollView,
     StyleSheet,
+    TouchableOpacity,
     View,
-    useColorScheme,
+    useColorScheme
 } from 'react-native';
 
 export default function ProfileScreen() {
     const { user, refreshUser, loadUser, clearUser } = useUserStore();
     const { clearToken } = useAuthStore();
-    const scheme = useColorScheme();
+    const systemScheme = useColorScheme();
+    const [theme, setTheme] = useState(systemScheme); // estado local de tema
     const bg = useThemeColor({ light: '#fff', dark: '#000' }, 'background');
     const [refreshing, setRefreshing] = useState(false);
 
@@ -51,7 +54,7 @@ export default function ProfileScreen() {
                 <RefreshControl
                     refreshing={refreshing}
                     onRefresh={onRefresh}
-                    tintColor={scheme === 'dark' ? '#fff' : '#000'}
+                    tintColor={theme === 'dark' ? '#fff' : '#000'}
                 />
             }
             contentContainerStyle={styles.container}
@@ -65,23 +68,25 @@ export default function ProfileScreen() {
                     }
                     style={styles.avatar}
                 />
-                <ThemedText type="title" style={styles.name}>
-                    {user?.name}
-                </ThemedText>
-
-                {user?.bio && (
-                    <ThemedText type="default" style={styles.bio}>
-                        {user.bio}
+                <View style={{marginLeft: 24}}>
+                    <ThemedText type="title" style={styles.name}>
+                        {user?.name}
                     </ThemedText>
-                )}
+
+                    {user?.bio && (
+                        <ThemedText type="default" style={styles.bio}>
+                            {user.bio}
+                        </ThemedText>
+                    )}
+                </View>
             </View>
 
-            <UserStats totalGoals={42} />
+            <UserStats />
 
             <View style={styles.logoutWrapper}>
-                <ThemedText onPress={logout} type="link" style={styles.logoutText}>
-                    Sair da conta
-                </ThemedText>
+                <TouchableOpacity onPress={logout}>
+                    <MaterialIcons name="logout" size={28} color="#e53935" />
+                </TouchableOpacity>
             </View>
         </ScrollView>
     );
@@ -96,6 +101,7 @@ const styles = StyleSheet.create({
     profileHeader: {
         alignItems: 'center',
         marginBottom: 32,
+        flexDirection: 'row'
     },
     avatar: {
         width: 96,

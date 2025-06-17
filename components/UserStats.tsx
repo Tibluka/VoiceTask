@@ -1,36 +1,46 @@
 import { useConfigStore } from '@/zustand/ConfigStore/useConfigStore';
-import React from 'react';
+import { useUserStore } from '@/zustand/UserStores/useUserStore';
+import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ThemedText } from './ThemedText';
 
-type Props = { totalGoals: number };
+export const UserStats = () => {
+    const { user } = useUserStore();
+    const { cfg, loadConfig } = useConfigStore();
 
-export const UserStats = ({ totalGoals }: Props) => {
-    const cfg = useConfigStore(s => s.cfg);
-    const strategy = cfg?.budgetStrategy ?? '50-30-20';
+    useEffect(() => {
+        if (user) {
+            loadConfig(user.id);
+        }
+    }, [user, loadConfig]);
 
-    const raw = cfg?.customPercentages;
     const values =
-        strategy === 'custom' && typeof raw === 'string'
-            ? JSON.parse(raw)
-            : strategy === 'custom'
-                ? raw ?? { needs: 0, wants: 0, investments: 0 }
-                : { needs: 50, wants: 30, investments: 20 };
+        cfg?.budgetStrategy === 'custom'
+            ? cfg?.customPercentages
+            : { needs: 50, wants: 30, investments: 20 }
 
     return (
         <View style={styles.wrapper}>
             <View style={styles.card}>
                 <ThemedText type="subtitle">Metas</ThemedText>
                 <ThemedText type="defaultSemiBold" style={styles.value}>
-                    {totalGoals}
+                    {cfg?.goals?.length || 0}
                 </ThemedText>
             </View>
 
             <View style={styles.card}>
-                <ThemedText type="subtitle">Estratégia: {strategy}</ThemedText>
-                <ThemedText type="default">Necessidades: {values.needs}%</ThemedText>
-                <ThemedText type="default">Desejos: {values.wants}%</ThemedText>
-                <ThemedText type="default">Investimentos: {values.investments}%</ThemedText>
+                <ThemedText type="subtitle">Salário</ThemedText>
+                <ThemedText type="defaultSemiBold" style={styles.value}>
+                    {cfg?.monthlyIncome}
+                </ThemedText>
+            </View>
+
+            <View style={styles.card}>
+                <ThemedText type="subtitle">Estratégia: {cfg?.budgetStrategy}</ThemedText>
+                <ThemedText type="default">Necessidades: {values?.needs}%</ThemedText>
+                <ThemedText type="default">Desejos: {values?.wants}%</ThemedText>
+                <ThemedText type="default">Investimentos: {values?.investments}%</ThemedText>
+                <ThemedText type="default">Limite mensal definito: R${cfg?.monthLimit}</ThemedText>
             </View>
         </View>
     );

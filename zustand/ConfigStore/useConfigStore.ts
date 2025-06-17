@@ -33,21 +33,21 @@ type Config = {
 
 type ConfigState = {
     cfg: Config | null;
-    loadConfig: () => Promise<void>;
-    saveConfig: (data: Partial<Config>) => Promise<void>;
+    loadConfig: (userId: string) => Promise<void>;
+    saveConfig: (userId: string, data: Partial<Config>) => Promise<void>;
 };
 
-export const useConfigStore = create<ConfigState>(set => ({
+export const useConfigStore = create<ConfigState>((set, get) => ({
     cfg: null,
-    loadConfig: async () => {
-        const res = await apiRequest(`${apiUrl}/config`, 'GET');
-        if (res.ok) {
-            const cfg = await res.json();
-            set({ cfg });
-        }
+
+    loadConfig: async (userId: string) => {
+        const res = await apiRequest(`/config/${userId}`, 'GET') as Config;
+        const cfg = res;
+        set({ cfg });
     },
-    saveConfig: async (data) => {
-        await apiRequest(`${apiUrl}/config`, 'POST', JSON.stringify(data));
-        await useConfigStore.getState().loadConfig();
+
+    saveConfig: async (userId: string, data: Partial<Config>) => {
+        await apiRequest(`/config/${userId}`, 'POST', JSON.stringify(data));
+        await get().loadConfig(userId);
     },
 }));

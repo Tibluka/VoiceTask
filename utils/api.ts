@@ -18,20 +18,19 @@ export const apiRequest = async (
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
-
+    
     console.log(apiUrl);
 
     try {
-        const res = await fetch(`${apiUrl}${endpoint}`, {
+        const url = `${apiUrl}${endpoint}`;
+        const res = await fetch(url, {
             method,
             headers,
-            ...(body
-                ? { body: isFormData ? body : JSON.stringify(body) }
-                : {}),
+            ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
         });
 
         if (res.status === 401) {
-            Alert.alert('Token expired', 'Redirecting to login')
+            Alert.alert('Token expirado', 'Redirecionando para login');
             const { clearToken } = useAuthStore.getState();
             await clearToken();
         }
@@ -42,9 +41,16 @@ export const apiRequest = async (
         }
 
         return res.json();
-
-    } catch (error) {
-        console.error('Erro na requisição:', error);
+    } catch (error: any) {
+        console.error('Erro na requisição:', {
+            message: error?.message,
+            endpoint,
+            url: `${apiUrl}${endpoint}`,
+            method,
+            body,
+            token,
+        });
+    
         throw error;
     }
 };

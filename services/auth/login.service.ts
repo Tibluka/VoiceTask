@@ -42,5 +42,7 @@ export const isLoggedIn = async (): Promise<boolean> => {
 
 export async function fetchCurrentUser() {
     const response = await apiRequest(`/auth/me`, 'GET', null);
+    console.log(response);
+
     return response;
 }
