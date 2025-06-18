@@ -3,8 +3,8 @@ import { useColorScheme, useWindowDimensions } from 'react-native';
 import { SceneMap, TabView } from 'react-native-tab-view';
 
 import { Footer } from '@/components/Footer';
-import AudioRecorder from '@/components/recorder';
-import ProfileScreen from './ProfileScreen';
+import AudioRecorder from '@/components/routeComponents/recorder';
+import ProfileScreen from './profile-screen';
 
 const renderScene = SceneMap({
     chat: AudioRecorder,

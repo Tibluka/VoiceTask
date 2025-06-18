@@ -20,7 +20,7 @@ export default function ProfileScreen() {
     const { user, refreshUser, loadUser, clearUser } = useUserStore();
     const { clearToken } = useAuthStore();
     const systemScheme = useColorScheme();
-    const [theme, setTheme] = useState(systemScheme); // estado local de tema
+    const [theme] = useState(systemScheme);
     const bg = useThemeColor({ light: '#fff', dark: '#000' }, 'background');
     const [refreshing, setRefreshing] = useState(false);
 
@@ -68,7 +68,7 @@ export default function ProfileScreen() {
                     }
                     style={styles.avatar}
                 />
-                <View style={{marginLeft: 24}}>
+                <View style={{ marginLeft: 24 }}>
                     <ThemedText type="title" style={styles.name}>
                         {user?.name}
                     </ThemedText>

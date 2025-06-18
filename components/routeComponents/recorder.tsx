@@ -7,8 +7,8 @@ import { executeQuery } from '@/services/execute-query/execure-query.service';
 import { sendAudioToApi } from '@/services/transcription/transcription.service';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, FlatList, StyleSheet, View } from 'react-native';
-import { ThemedText } from './ThemedText';
-import { TypingIndicator } from './TypingIndicator';
+import { ThemedText } from '../ThemedText';
+import { TypingIndicator } from '../TypingIndicator';
 
 export default function AudioRecorder() {
   const { isRecording, startRecording, stopRecording, cancelRecording } = useAudioRecorder();

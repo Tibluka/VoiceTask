@@ -1,6 +1,8 @@
 import { ThemedText } from '@/components/ThemedText';
 import { fetchCurrentUser, login } from '@/services/auth/login.service';
 import { useAuthStore } from '@/zustand/AuthStore/useAuthStore';
+import { useUserStore } from '@/zustand/UserStores/useUserStore';
+import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     Alert,
@@ -35,16 +37,18 @@ export default function Login() {
         try {
             setLoading(true);
             const response = await login(email, senha);
+            debugger
             useAuthStore.getState().setToken(response.token);
             const user = await fetchCurrentUser();
-            //await useUserStore.getState().setUser(user);
+            await useUserStore.getState().setUser(user);
             console.log(response.token);
+            useRouter().push('/');
 
         } catch (error: any) {
+            debugger
             let message = 'Erro desconhecido, tente novamente.';
-
-            const statusMatch = error.message.match(/^Erro (\d+):/);
-            const statusCode = statusMatch ? Number(statusMatch[1]) : null;
+            
+            const statusCode = error.status;
 
             if (statusCode === 401) {
                 message = 'Credenciais inválidas. Por favor, verifique seu e-mail e senha.';
@@ -133,6 +137,13 @@ export default function Login() {
                                 {loading ? 'Entrando...' : 'Entrar'}
                             </ThemedText>
                         </TouchableOpacity>
+
+                        <Link style={{
+                            textAlign: 'center', marginTop: 24
+                        }} href="/reset-password">
+                            <ThemedText type='link'>Esqueci minha senha</ThemedText>
+                        </Link>
+
                     </View>
                 </KeyboardAvoidingView>
             </TouchableWithoutFeedback>

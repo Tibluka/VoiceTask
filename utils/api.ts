@@ -18,7 +18,7 @@ export const apiRequest = async (
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
-    
+
     console.log(apiUrl);
 
     try {
@@ -29,28 +29,27 @@ export const apiRequest = async (
             ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
         });
 
-        if (res.status === 401) {
+        if (res.status === 401 && !res.url.includes('auth/login')) {
             Alert.alert('Token expirado', 'Redirecionando para login');
             const { clearToken } = useAuthStore.getState();
             await clearToken();
         }
 
         if (!res.ok) {
-            const errorData = await res.text();
-            throw new Error(`Erro ${res.status}: ${errorData}`);
+            let errorData: any;
+
+            try {
+                errorData = await res.json();
+            } catch (jsonErr) {
+                const text = await res.text();
+                throw new Error(`Erro ${res.status}: ${text}`);
+            }
+
+            throw { status: res.status, response: { data: errorData } };
         }
 
         return res.json();
     } catch (error: any) {
-        console.error('Erro na requisição:', {
-            message: error?.message,
-            endpoint,
-            url: `${apiUrl}${endpoint}`,
-            method,
-            body,
-            token,
-        });
-    
         throw error;
     }
 };

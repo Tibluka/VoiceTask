@@ -4,7 +4,7 @@ import React from 'react'
 import { useColorScheme } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 
-export default function Authenticated() {
+export default function NotAuthenticated() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
 
@@ -15,8 +15,10 @@ export default function Authenticated() {
                     <Stack screenOptions={{
                         headerShown: false,
                     }}>
-                        <Stack.Screen name="main-tabs" />
-                        <Stack.Screen name="profile-screen" />
+                        <Stack.Screen name="login" />
+                        <Stack.Screen name="reset-password" />
+                        <Stack.Screen name="validation-code" />
+                        <Stack.Screen name="password-confirmation" />
                     </Stack>
                 </SafeAreaView>
             </SafeAreaProvider>
