@@ -46,3 +46,18 @@ export async function fetchCurrentUser() {
 
     return response;
 }
+
+export const register = async (name: string, email: string, password: string, phone: string) => {
+    try {
+        const response = await apiRequest('/auth/register', 'POST', {
+            name,
+            email,
+            password,
+            phone,
+        });
+        return response;
+    } catch (error) {
+        console.error('Erro no registro:', error);
+        throw error;
+    }
+};

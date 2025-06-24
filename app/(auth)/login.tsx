@@ -37,7 +37,6 @@ export default function Login() {
         try {
             setLoading(true);
             const response = await login(email, senha);
-            debugger
             useAuthStore.getState().setToken(response.token);
             const user = await fetchCurrentUser();
             await useUserStore.getState().setUser(user);
@@ -45,13 +44,13 @@ export default function Login() {
             useRouter().push('/');
 
         } catch (error: any) {
-            debugger
             let message = 'Erro desconhecido, tente novamente.';
-            
-            const statusCode = error.status;
 
+            const statusCode = error.status;
             if (statusCode === 401) {
                 message = 'Credenciais inválidas. Por favor, verifique seu e-mail e senha.';
+            } else if (statusCode === 403) {
+                message = 'Sua conta está pendente de ativação. Verifique seu e-mail para ativar a conta.';
             } else {
                 try {
                     const parsed = JSON.parse(error.message.replace(/^Erro \d+: /, ''));
@@ -142,6 +141,12 @@ export default function Login() {
                             textAlign: 'center', marginTop: 24
                         }} href="/reset-password">
                             <ThemedText type='link'>Esqueci minha senha</ThemedText>
+                        </Link>
+
+                        <Link style={{
+                            textAlign: 'center', marginTop: 12
+                        }} href="/(auth)/register">
+                            <ThemedText type='link'>Criar conta</ThemedText>
                         </Link>
 
                     </View>
