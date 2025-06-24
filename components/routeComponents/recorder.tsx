@@ -44,6 +44,7 @@ export default function AudioRecorder() {
         setTranscribing(false);
         setThinking(true);
         const response: any = await executeQuery(transcribedText);
+
         setThinking(false);
         if (response) setMessages(prev => [response, ...prev]);
       }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useColorScheme, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { SceneMap, TabView } from 'react-native-tab-view';
 
 import { Footer } from '@/components/Footer';
@@ -12,8 +12,6 @@ const renderScene = SceneMap({
 });
 
 export default function MainTabs() {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === 'dark';
     const layout = useWindowDimensions();
 
     const [index, setIndex] = useState(0);

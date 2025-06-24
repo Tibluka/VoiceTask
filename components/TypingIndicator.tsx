@@ -58,7 +58,7 @@ export const TypingIndicator: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         position: 'absolute',
-        bottom: 20,
+        bottom: 40,
         left: 16,
     },
     bubble: {
