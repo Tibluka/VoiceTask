@@ -43,7 +43,7 @@ export default function AudioRecorder() {
         const transcribedText: any = await sendAudioToApi(uri);
         setTranscribing(false);
         setThinking(true);
-        const response: any = await executeQuery(transcribedText);
+        const response: any = await executeQuery(transcribedText, messages);
 
         setThinking(false);
         if (response) setMessages(prev => [response, ...prev]);
