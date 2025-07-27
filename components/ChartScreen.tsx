@@ -61,7 +61,7 @@ export default function ChartScreen({ chartType, data }: ChartProps) {
                         dataPointsColor1="white"
                         yAxisIndicesColor="white"
                         xAxisColor="white"
-                        yAxisTextStyle={{ color: 'white'}}
+                        yAxisTextStyle={{ color: 'white' }}
                         xAxisLabelTextStyle={{ color: 'white', fontSize: 10 }}
                     />
                 )
@@ -122,7 +122,6 @@ export default function ChartScreen({ chartType, data }: ChartProps) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         alignItems: 'center'
     },
     legendContainer: {

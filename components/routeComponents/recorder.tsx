@@ -35,7 +35,6 @@ export default function AudioRecorder() {
   };
 
   const handleMicPress = async () => {
-
     if (isRecording) {
       setTranscribing(true);
       const uri = await stopRecording();
@@ -128,9 +127,7 @@ export default function AudioRecorder() {
         </View>
       )}
 
-      {
-        renderInitialGreeting()
-      }
+      {renderInitialGreeting()}
 
       <View style={styles.micContainer}>
         <MicButton

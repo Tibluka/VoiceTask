@@ -2,6 +2,7 @@ import { CATEGORY_TRANSLATIONS } from '@/constants/CategoryTranslations';
 import { ConsultResult } from '@/interfaces/Transcription';
 import { deleteSpending } from '@/services/spendings/spendings.service';
 import { formatCurrency } from '@/utils/format';
+import { renderFormattedText } from '@/utils/textFormat';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -128,17 +129,30 @@ export const AudioMessage = ({ message, consult_results, chart_data, type }: Pro
             styles.messageContainer,
             isUser ? styles.userContainer : styles.systemContainer
         ]}>
+            {renderResults()}
+            {renderChart()}
             <View style={[
                 styles.messageBubble,
                 isUser ? styles.userBubble : styles.systemBubble
             ]}>
-                <ThemedText style={[
-                    styles.messageText,
-                    isUser ? styles.userText : styles.systemText
-                ]}>{message}</ThemedText>
+                {renderFormattedText(message, {
+                    baseStyle: [
+                        styles.messageText,
+                        isUser ? styles.userText : styles.systemText
+                    ],
+                    boldStyle: {
+                        fontWeight: 'bold',
+                        fontSize: 16,
+                        marginBottom: 4,
+                        color: isUser ? '#fff' : '#333'
+                    },
+                    bulletStyle: {
+                        marginLeft: 8,
+                        marginVertical: 2,
+                        color: isUser ? '#fff' : '#333'
+                    }
+                })}
             </View>
-            {!isUser && renderResults()}
-            {!isUser && renderChart()}
         </View>
     );
 };
