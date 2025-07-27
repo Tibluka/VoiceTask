@@ -13,6 +13,7 @@ import { ThemedText } from './ThemedText';
 interface Props {
     message: string;
     consult_results?: ConsultResult[];
+    type: string;
     chart_data: {
         chartType: 'pie' | 'pyramid' | 'bar' | 'radar' | 'line';
         data: {
@@ -22,7 +23,9 @@ interface Props {
     };
 }
 
-export const AudioMessage = ({ message, consult_results, chart_data }: Props) => {
+export const AudioMessage = ({ message, consult_results, chart_data, type }: Props) => {
+    const isUser = type === 'user';
+
     const [results, setResults] = useState(consult_results ?? []);
 
     const handleDelete = (item: ConsultResult) => {
@@ -58,7 +61,7 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
         if (chart_data || results.length === 0) return null;
 
         return (
-            <View style={{ marginVertical: 24 }}>
+            <View style={{ marginVertical: 24, width: '100%' }}>
                 {results.map((row, i) => (
                     <Swipeable
                         key={i}
@@ -121,27 +124,56 @@ export const AudioMessage = ({ message, consult_results, chart_data }: Props) =>
     }, [consult_results]);
 
     return (
-        <View style={styles.messageContainer}>
-            <View style={styles.messageBubble}>
-                <ThemedText style={styles.messageText}>{message}</ThemedText>
+        <View style={[
+            styles.messageContainer,
+            isUser ? styles.userContainer : styles.systemContainer
+        ]}>
+            <View style={[
+                styles.messageBubble,
+                isUser ? styles.userBubble : styles.systemBubble
+            ]}>
+                <ThemedText style={[
+                    styles.messageText,
+                    isUser ? styles.userText : styles.systemText
+                ]}>{message}</ThemedText>
             </View>
-            {renderResults()}
-            {renderChart()}
+            {!isUser && renderResults()}
+            {!isUser && renderChart()}
         </View>
     );
 };
-
 const styles = StyleSheet.create({
-    messageContainer: { marginBottom: 16 },
+    messageContainer: {
+        marginBottom: 16
+    },
+    userContainer: {
+        alignItems: 'flex-end',
+    },
+    systemContainer: {
+        alignItems: 'flex-start',
+    },
     messageBubble: {
-        backgroundColor: '#e6e6fa',
         padding: 12,
         borderRadius: 8,
         marginBottom: 8,
+        maxWidth: '80%'
+    },
+    userBubble: {
+        backgroundColor: '#4A90E2',
+        alignSelf: 'flex-end',
+    },
+    systemBubble: {
+        backgroundColor: '#e6e6fa',
+        alignSelf: 'flex-start',
     },
     messageText: {
         fontSize: 14,
-        color: '#333'
+    },
+    userText: {
+        color: '#fff',
+    },
+    systemText: {
+        color: '#333',
     },
     card: {
         flexDirection: 'row',

@@ -40,13 +40,22 @@ export default function AudioRecorder() {
       setTranscribing(true);
       const uri = await stopRecording();
       if (uri) {
-        const transcribedText: any = await sendAudioToApi(uri);
-        setTranscribing(false);
-        setThinking(true);
-        const response: any = await executeQuery(transcribedText, messages);
+        try {
+          const transcribedText: any = await sendAudioToApi(uri);
+          addUserMessage(transcribedText);
+          setTranscribing(false);
+          setThinking(true);
 
-        setThinking(false);
-        if (response) setMessages(prev => [response, ...prev]);
+          const response: any = await executeQuery(transcribedText, messages);
+          setThinking(false);
+          if (response) addGptMessage(response);
+          console.log(response);
+
+        } catch (error) {
+          console.error('Erro no processo:', error);
+          setTranscribing(false);
+          setThinking(false);
+        }
       }
     } else {
       startRecording();
@@ -67,6 +76,23 @@ export default function AudioRecorder() {
     return null;
   };
 
+  const addUserMessage = (text: string) => {
+    const userMessage = {
+      description: text,
+      gpt_answer: text,
+      type: 'user'
+    };
+    setMessages(prev => [userMessage, ...prev]);
+  };
+
+
+  const addGptMessage = (response: TranscriptionResponse) => {
+    const gptMessage = {
+      ...response,
+      type: 'system'
+    };
+    setMessages(prev => [gptMessage, ...prev]);
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -80,7 +106,8 @@ export default function AudioRecorder() {
             <AudioMessage
               message={item.gpt_answer}
               chart_data={item.chart_data}
-              consult_results={item.consult_results} />
+              consult_results={item.consult_results}
+              type={item.type} />
           }
           contentContainerStyle={styles.list}
           inverted
