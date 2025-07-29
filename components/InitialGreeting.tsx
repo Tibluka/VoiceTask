@@ -11,7 +11,7 @@ interface InitialGreetingProps {
 
 const suggestedQuestions = [
     { text: "Quanto eu gastei hoje?", icon: "cash-multiple", value: 'Quanto eu gastei hoje?' },
-    { text: "Parcelas em aberto", icon: "credit-card-clock", value: 'Quantas parcelas eu tenho em aberto?' },
+    { text: "Parcelas em aberto", icon: "credit-card-clock", value: 'Parcelas em aberto' },
     { text: "Maior gasto do mês", icon: "trending-up", value: 'Qual o meu maior gasto esse mês?' },
     { text: "Gastos por categoria", icon: "chart-pie", value: 'Quanto gastei por categoria esse mês?' }
 ];
