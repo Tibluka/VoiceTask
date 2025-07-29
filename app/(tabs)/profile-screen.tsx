@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     container: {
         paddingBottom: 40,
         paddingTop: 60,
-        paddingHorizontal: 24,
+        paddingHorizontal: 12,
     },
     profileHeader: {
         alignItems: 'center',
