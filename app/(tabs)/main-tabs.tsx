@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { SceneMap, TabView } from 'react-native-tab-view';
 
+import AudioRecorder from '@/components/AudioRecorder';
 import { Footer } from '@/components/Footer';
-import AudioRecorder from '@/components/routeComponents/AudioRecorder';
 import ProfileScreen from './profile-screen';
 
 const renderScene = SceneMap({

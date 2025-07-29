@@ -1,4 +1,6 @@
+// AudioRecorder.tsx
 import { AudioMessage } from '@/components/AudioMessage';
+import { InitialGreeting } from '@/components/InitialGreeting'; // Novo import
 import { MicButton } from '@/components/MicButton';
 import { ThemedView } from '@/components/ThemedView';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
@@ -19,9 +21,9 @@ import {
   View
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { ThemedText } from '../ThemedText';
-import { TypingIndicator } from '../TypingIndicator';
 import { TextInputField } from './TextInputField';
+import { ThemedText } from './ThemedText';
+import { TypingIndicator } from './TypingIndicator';
 
 export default function AudioRecorder() {
   const { isRecording, startRecording, stopRecording, cancelRecording } = useAudioRecorder();
@@ -149,21 +151,6 @@ export default function AudioRecorder() {
     );
   };
 
-  const renderInitialGreeting = () => {
-    if (messages.length === 0 && (!thinking && !transcribing)) {
-      return (
-        <View style={styles.greetingContainer}>
-          <ThemedText style={styles.appTitle}>VoiceTask</ThemedText>
-          <ThemedText style={styles.greetingText}>
-            Olá! {'\n'}
-            Toque no microfone para falar ou no teclado para digitar 📣⌨️
-          </ThemedText>
-        </View>
-      );
-    }
-    return null;
-  };
-
   const addUserMessage = (text: string) => {
     const userMessage = {
       description: text,
@@ -180,6 +167,23 @@ export default function AudioRecorder() {
     };
     setMessages(prev => [gptMessage, ...prev]);
   };
+
+  const handleQuestionSelect = async (question: string) => {
+    addUserMessage(question);
+    setThinking(true);
+
+    try {
+      const response: any = await executeQuery(question, messages);
+      setThinking(false);
+      if (response) addGptMessage(response);
+    } catch (error) {
+      console.error('Erro no processo:', error);
+      setThinking(false);
+    }
+  };
+
+  // Lógica para mostrar o greeting
+  const showGreeting = messages.length === 0 && !thinking && !transcribing;
 
   return (
     <KeyboardAvoidingView
@@ -224,7 +228,8 @@ export default function AudioRecorder() {
             </View>
           )}
 
-          {renderInitialGreeting()}
+          <InitialGreeting visible={showGreeting} onQuestionSelect={handleQuestionSelect} />
+
           {renderInputArea()}
         </ThemedView>
       </TouchableWithoutFeedback>
@@ -234,24 +239,6 @@ export default function AudioRecorder() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  greetingContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1
-  },
-  appTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#4A90E2',
-    marginBottom: 12,
-  },
-  greetingText: {
-    fontSize: 18,
-    color: '#555',
-    textAlign: 'center',
-    paddingHorizontal: 20,
-    lineHeight: 26,
-  },
   list: {
     paddingHorizontal: 16,
     paddingVertical: 120
