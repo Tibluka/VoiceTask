@@ -3,6 +3,18 @@ import { create } from "zustand";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
+type Project = {
+    projectId: string;
+    projectName: string;
+    description?: string;
+    totalValueRegistered: number;
+    targetValue?: number;
+    status: "ACTIVE" | "COMPLETED" | "PAUSED";
+    dateHourCreated: string;
+    dateHourUpdated: string;
+    completedAt?: string;
+};
+
 type Config = {
     id: string;
     userId: string;
@@ -27,6 +39,7 @@ type Config = {
         currentAmount: number;
         deadline: string;
     }>;
+    projects?: Project[];
     createdAt: string;
     updatedAt: string;
 };
@@ -42,6 +55,8 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
 
     loadConfig: async (userId: string) => {
         const res = await apiRequest(`/config/${userId}`, 'GET') as Config;
+        console.log(res);
+        
         const cfg = res;
         set({ cfg });
     },
