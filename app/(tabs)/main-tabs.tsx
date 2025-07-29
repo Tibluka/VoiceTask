@@ -3,7 +3,7 @@ import { useWindowDimensions } from 'react-native';
 import { SceneMap, TabView } from 'react-native-tab-view';
 
 import { Footer } from '@/components/Footer';
-import AudioRecorder from '@/components/routeComponents/recorder';
+import AudioRecorder from '@/components/routeComponents/AudioRecorder';
 import ProfileScreen from './profile-screen';
 
 const renderScene = SceneMap({

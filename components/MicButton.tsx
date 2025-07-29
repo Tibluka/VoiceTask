@@ -12,12 +12,10 @@ interface Props {
 
 export const MicButton = ({ isRecording, onPress, onCancel, pulseAnim, disabled }: Props) => (
     <View style={styles.row}>
-        {isRecording ? (
+        {isRecording && (
             <TouchableOpacity onPress={onCancel} style={styles.trashButton}>
                 <Icon name="trash-can" size={28} color="#d32f2f" />
             </TouchableOpacity>
-        ) : (
-            <View style={styles.trashPlaceholder} />
         )}
 
         <Animated.View style={[styles.wrapper, isRecording && { transform: [{ scale: pulseAnim }] }]}>
@@ -53,11 +51,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#d32f2f',
     },
     trashButton: {
-        marginRight: 32,
-        padding: 8,
-    },
-    trashPlaceholder: {
-        width: 44, // same width as the trashButton for alignment when hidden
         marginRight: 16,
+        padding: 8,
+        backgroundColor: '#ffebee',
+        borderRadius: 20,
     },
 });
