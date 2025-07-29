@@ -1,3 +1,4 @@
+import { CATEGORY_TRANSLATIONS } from "@/constants/CategoryTranslations";
 import { formatCurrency } from "@/utils/format";
 import React, { useMemo } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
@@ -8,7 +9,7 @@ interface ChartProps {
     chartType: 'pie' | 'pyramid' | 'bar' | 'radar' | 'line';
     data: {
         value: number,
-        label?: string,
+        label?: any,
         text?: string
     }[]
 }
@@ -83,7 +84,7 @@ export default function ChartScreen({ chartType, data }: ChartProps) {
                             {chartData.map((d, index) => (
                                 <View key={index} style={styles.legendItem}>
                                     <View style={[styles.colorBox, { backgroundColor: d.color }]} />
-                                    <ThemedText style={styles.legendLabel}>{d.text}: </ThemedText>
+                                    <ThemedText style={styles.legendLabel}>{CATEGORY_TRANSLATIONS[d.text]}: </ThemedText>
                                     <ThemedText style={styles.legendValue}>{formatCurrency(d.value)}</ThemedText>
                                 </View>
                             ))}

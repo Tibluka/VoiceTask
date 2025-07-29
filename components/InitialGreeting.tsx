@@ -10,10 +10,10 @@ interface InitialGreetingProps {
 }
 
 const suggestedQuestions = [
-    { text: "Quanto eu gastei hoje?", icon: "cash-multiple" },
-    { text: "Parcelas em aberto", icon: "credit-card-clock" },
-    { text: "Maior gasto do mês", icon: "trending-up" },
-    { text: "Resumo financeiro", icon: "chart-pie" }
+    { text: "Quanto eu gastei hoje?", icon: "cash-multiple", value: 'Quanto eu gastei hoje?' },
+    { text: "Parcelas em aberto", icon: "credit-card-clock", value: 'Quantas parcelas eu tenho em aberto?' },
+    { text: "Maior gasto do mês", icon: "trending-up", value: 'Qual o meu maior gasto esse mês?' },
+    { text: "Gastos por categoria", icon: "chart-pie", value: 'Quanto gastei por categoria esse mês?' }
 ];
 
 export function InitialGreeting({ visible, onQuestionSelect }: InitialGreetingProps) {
@@ -31,7 +31,7 @@ export function InitialGreeting({ visible, onQuestionSelect }: InitialGreetingPr
                     <TouchableOpacity
                         key={index}
                         style={styles.questionChip}
-                        onPress={() => onQuestionSelect(item.text)}
+                        onPress={() => onQuestionSelect(item.value)}
                         activeOpacity={0.8}
                     >
                         <Icon name={item.icon} size={20} color="#fff" style={styles.chipIcon} />
