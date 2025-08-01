@@ -82,7 +82,7 @@ export default function ValidationCode() {
                     style={[
                         styles.input,
                         {
-                            backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                            backgroundColor: isDark ? '#1a1a1a' : 'white',
                             color: isDark ? '#fff' : '#000',
                         },
                     ]}

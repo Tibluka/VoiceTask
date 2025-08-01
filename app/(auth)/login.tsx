@@ -81,7 +81,7 @@ export default function Login() {
                 >
                     <View
                         style={[
-                            { backgroundColor: isDark ? '#000' : '#fff' },
+                            { backgroundColor: isDark ? '#000' : 'inherit' },
                         ]}
                     >
                         <ThemedText
@@ -98,7 +98,7 @@ export default function Login() {
                             style={[
                                 styles.input,
                                 {
-                                    backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                                    backgroundColor: isDark ? '#1a1a1a' : 'white',
                                     color: isDark ? '#fff' : '#000',
                                 },
                             ]}
@@ -114,7 +114,7 @@ export default function Login() {
                             style={[
                                 styles.input,
                                 {
-                                    backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                                    backgroundColor: isDark ? '#1a1a1a' : 'white',
                                     color: isDark ? '#fff' : '#000',
                                 },
                             ]}
@@ -127,7 +127,7 @@ export default function Login() {
                             style={[
                                 styles.button,
                                 {
-                                    backgroundColor: isDark ? '#333' : '#444',
+                                    backgroundColor: isDark ? '#333' : 'gray',
                                     opacity: loading ? 0.6 : 1,
                                 },
                             ]}

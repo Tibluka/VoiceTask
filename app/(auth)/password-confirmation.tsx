@@ -78,7 +78,7 @@ export default function PasswordConfirmationScreen() {
 
     if (isSuccess) {
         return (
-            <View style={[styles.successContainer, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+            <View style={[styles.successContainer, { backgroundColor: isDark ? '#000' : 'inherit' }]}>
                 <Ionicons name="checkmark-circle-outline" size={80} color="#4A90E2" style={styles.icon} />
                 <ThemedText type="title" style={styles.successTitle}>
                     Senha redefinida!
@@ -100,7 +100,7 @@ export default function PasswordConfirmationScreen() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView
                 behavior={Platform.select({ ios: 'padding', android: undefined })}
-                style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}
+                style={[styles.container, { backgroundColor: isDark ? '#000' : 'inherit' }]}
             >
                 <ThemedText type="title" style={styles.title}>
                     Redefinir senha
@@ -115,7 +115,7 @@ export default function PasswordConfirmationScreen() {
                     style={[
                         styles.input,
                         {
-                            backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                            backgroundColor: isDark ? '#1a1a1a' : 'white',
                             color: isDark ? '#fff' : '#000',
                         },
                     ]}
@@ -131,7 +131,7 @@ export default function PasswordConfirmationScreen() {
                     style={[
                         styles.input,
                         {
-                            backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                            backgroundColor: isDark ? '#1a1a1a' : 'white',
                             color: isDark ? '#fff' : '#000',
                         },
                     ]}

@@ -33,7 +33,7 @@ export default function ResetPasswordScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+        <View style={[styles.container, { backgroundColor: isDark ? '#000' : 'inherit' }]}>
             <ThemedText type="title">Recuperar senha</ThemedText>
 
             <TextInput
@@ -44,7 +44,7 @@ export default function ResetPasswordScreen() {
                 style={[
                     styles.input,
                     {
-                        backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                        backgroundColor: isDark ? '#1a1a1a' : 'white',
                         color: isDark ? '#fff' : '#000',
                     },
                 ]}

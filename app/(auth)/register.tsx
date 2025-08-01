@@ -59,7 +59,7 @@ export default function Register() {
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={styles.container}
             >
-                <View style={{ backgroundColor: isDark ? '#000' : '#fff' }}>
+                <View style={{ backgroundColor: isDark ? '#000' : 'inherit' }}>
                     <ThemedText style={styles.title}>Criar conta</ThemedText>
                     <TextInput
                         placeholder="Nome"
@@ -69,7 +69,7 @@ export default function Register() {
                         style={[
                             styles.input,
                             {
-                                backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                                backgroundColor: isDark ? '#1a1a1a' : 'white',
                                 color: isDark ? '#fff' : '#000',
                             },
                         ]}
@@ -83,7 +83,7 @@ export default function Register() {
                         style={[
                             styles.input,
                             {
-                                backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                                backgroundColor: isDark ? '#1a1a1a' : 'white',
                                 color: isDark ? '#fff' : '#000',
                             },
                         ]}
@@ -99,7 +99,7 @@ export default function Register() {
                         style={[
                             styles.input,
                             {
-                                backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                                backgroundColor: isDark ? '#1a1a1a' : 'white',
                                 color: isDark ? '#fff' : '#000',
                             },
                         ]}
@@ -113,7 +113,7 @@ export default function Register() {
                         style={[
                             styles.input,
                             {
-                                backgroundColor: isDark ? '#1a1a1a' : '#f0f0f0',
+                                backgroundColor: isDark ? '#1a1a1a' : 'white',
                                 color: isDark ? '#fff' : '#000',
                             },
                         ]}
