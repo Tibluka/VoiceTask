@@ -1,8 +1,9 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { payBill } from '@/services/fixed-bills/fixed-bills.service';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, View, useColorScheme } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View, useColorScheme } from 'react-native';
 import { ThemedText } from './ThemedText';
 
 type FixedBill = {
@@ -43,7 +44,7 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
 
     // Calcula o status de pagamento do mês atual
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-
+    debugger
     const billsWithStatus = activeBills.map(bill => {
         const currentPayment = bill.paymentHistory?.find(p => p.month === currentMonth);
         return {
@@ -82,6 +83,27 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
         return icons[category] || 'receipt';
     };
 
+    const confirmPaidBill = (bill: FixedBill) => {
+        Alert.alert(
+            'Confirmar pagamento',
+            `Deseja marcar a conta "${bill.name}" como paga?`,
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                    text: 'Pagar', style: 'default', onPress: async () => {
+                        try {
+                            const yearMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+                            await payBill(bill.billId, bill.amount, yearMonth);
+                            Alert.alert('Sucesso', 'Conta marcada como paga!');
+                        } catch (error: any) {
+                            Alert.alert('Erro', 'Não foi possível marcar a conta como paga. Tente novamente.');
+                        }
+                    }
+                }
+            ]
+        );
+    }
+
     return (
         <>
             <View style={[styles.sectionHeader, { marginTop: 24 }]}>
@@ -97,10 +119,10 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
                     colors={isDark ? ['#1b5e20', '#2e7d32'] : ['#e8f5e9', '#c8e6c9']}
                     style={styles.statCard}
                 >
-                    <ThemedText style={[styles.statValue, { color: '#1b5e20' }]}>
+                    <ThemedText style={[styles.statValue, { color: isDark ? 'white' : 'black' }]}>
                         {formatCurrency(totalAmount)}
                     </ThemedText>
-                    <ThemedText style={[styles.statLabel, { color: '#1b5e20' }]}>
+                    <ThemedText style={[styles.statLabel, { color: isDark ? 'white' : 'black' }]}>
                         Total Mensal
                     </ThemedText>
                 </LinearGradient>
@@ -142,53 +164,55 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
                         return a.dueDay - b.dueDay;
                     })
                     .map((bill) => (
-                        <View
-                            key={bill.billId}
-                            style={[
-                                styles.billCard,
-                                { backgroundColor: cardBg },
-                                bill.isPaid && styles.billCardPaid
-                            ]}
-                        >
-                            <View style={styles.billHeader}>
-                                <View style={styles.billInfo}>
-                                    <View style={[
-                                        styles.billIcon,
-                                        { backgroundColor: bill.isPaid ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 152, 0, 0.1)' }
-                                    ]}>
-                                        <MaterialIcons
-                                            name={getCategoryIcon(bill.category)}
-                                            size={20}
-                                            color={bill.isPaid ? '#4caf50' : '#ff9800'}
-                                        />
+                        <TouchableOpacity disabled={bill.isPaid} onPress={() => confirmPaidBill(bill)}
+                            key={bill.billId}>
+                            <View
+                                style={[
+                                    styles.billCard,
+                                    { backgroundColor: cardBg },
+                                    bill.isPaid && styles.billCardPaid
+                                ]}
+                            >
+                                <View style={styles.billHeader}>
+                                    <View style={styles.billInfo}>
+                                        <View style={[
+                                            styles.billIcon,
+                                            { backgroundColor: bill.isPaid ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 152, 0, 0.1)' }
+                                        ]}>
+                                            <MaterialIcons
+                                                name={getCategoryIcon(bill.category)}
+                                                size={20}
+                                                color={bill.isPaid ? '#4caf50' : '#ff9800'}
+                                            />
+                                        </View>
+                                        <View style={styles.billDetails}>
+                                            <ThemedText style={[styles.billName, { color: textColor }]}>
+                                                {bill.name}
+                                            </ThemedText>
+                                            <ThemedText style={[styles.billDueDate, { color: subtitleColor }]}>
+                                                Vence dia {bill.dueDay} • {bill.autopay ? 'Débito automático' : 'Pagamento manual'}
+                                            </ThemedText>
+                                        </View>
                                     </View>
-                                    <View style={styles.billDetails}>
-                                        <ThemedText style={[styles.billName, { color: textColor }]}>
-                                            {bill.name}
+                                    <View style={styles.billAmount}>
+                                        <ThemedText style={[
+                                            styles.billAmountText,
+                                            { color: bill.isPaid ? '#4caf50' : textColor }
+                                        ]}>
+                                            {formatCurrency(bill.amount)}
                                         </ThemedText>
-                                        <ThemedText style={[styles.billDueDate, { color: subtitleColor }]}>
-                                            Vence dia {bill.dueDay} • {bill.autopay ? 'Débito automático' : 'Pagamento manual'}
-                                        </ThemedText>
+                                        {bill.isPaid && (
+                                            <Ionicons
+                                                name="checkmark-circle"
+                                                size={20}
+                                                color="#4caf50"
+                                                style={styles.paidIcon}
+                                            />
+                                        )}
                                     </View>
-                                </View>
-                                <View style={styles.billAmount}>
-                                    <ThemedText style={[
-                                        styles.billAmountText,
-                                        { color: bill.isPaid ? '#4caf50' : textColor }
-                                    ]}>
-                                        {formatCurrency(bill.amount)}
-                                    </ThemedText>
-                                    {bill.isPaid && (
-                                        <Ionicons
-                                            name="checkmark-circle"
-                                            size={20}
-                                            color="#4caf50"
-                                            style={styles.paidIcon}
-                                        />
-                                    )}
                                 </View>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     ))}
             </View>
 
