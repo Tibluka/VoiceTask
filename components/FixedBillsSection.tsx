@@ -1,35 +1,12 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { payBill } from '@/services/fixed-bills/fixed-bills.service';
+import { FixedBillsSectionProps } from '@/interfaces/FixedBills';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Alert, StyleSheet, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, useColorScheme } from 'react-native';
 import { ThemedText } from './ThemedText';
 
-type FixedBill = {
-    billId: string;
-    name: string;
-    description?: string;
-    amount: number;
-    dueDay: number;
-    category: string;
-    status: "ACTIVE" | "PAUSED" | "CANCELLED";
-    autopay: boolean;
-    reminder: boolean;
-    paymentHistory: Array<{
-        paymentId: string;
-        month: string;
-        amount: number;
-        paid: boolean;
-        paidDate?: string;
-    }>;
-};
-
-interface FixedBillsSectionProps {
-    fixedBills?: FixedBill[];
-}
-
-export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills }) => {
+export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills, onBillPaid }) => {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const cardBg = useThemeColor({ light: '#f5f5f5', dark: '#1a1a1a' }, 'background');
@@ -82,27 +59,6 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
         };
         return icons[category] || 'receipt';
     };
-
-    const confirmPaidBill = (bill: FixedBill) => {
-        Alert.alert(
-            'Confirmar pagamento',
-            `Deseja marcar a conta "${bill.name}" como paga?`,
-            [
-                { text: 'Cancelar', style: 'cancel' },
-                {
-                    text: 'Pagar', style: 'default', onPress: async () => {
-                        try {
-                            const yearMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-                            await payBill(bill.billId, bill.amount, yearMonth);
-                            Alert.alert('Sucesso', 'Conta marcada como paga!');
-                        } catch (error: any) {
-                            Alert.alert('Erro', 'Não foi possível marcar a conta como paga. Tente novamente.');
-                        }
-                    }
-                }
-            ]
-        );
-    }
 
     return (
         <>
@@ -164,7 +120,7 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
                         return a.dueDay - b.dueDay;
                     })
                     .map((bill) => (
-                        <TouchableOpacity disabled={bill.isPaid} onPress={() => confirmPaidBill(bill)}
+                        <TouchableOpacity disabled={bill.isPaid} onPress={() => onBillPaid(bill)}
                             key={bill.billId}>
                             <View
                                 style={[
