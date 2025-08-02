@@ -3,6 +3,7 @@ import { useUserStore } from '@/zustand/UserStores/useUserStore';
 import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { FinanceSection } from './FinanceSection';
+import { FixedBillsSection } from './FixedBillsSection';
 import { GoalsSection } from './GoalsSection';
 import { ProjectsSection } from './ProjectsSection';
 import { StrategySection } from './StrategySection';
@@ -35,6 +36,9 @@ export const UserStats = () => {
 
             {/* Card de Metas */}
             <GoalsSection goalsCount={cfg?.goals?.length || 0} />
+
+            {/* Seção de Contas Fixas */}
+            <FixedBillsSection fixedBills={cfg?.fixedBills} />
 
             {/* Seção de Projetos */}
             <ProjectsSection projects={cfg?.projects || []} />

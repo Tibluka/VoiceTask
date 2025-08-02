@@ -15,6 +15,28 @@ type Project = {
     completedAt?: string;
 };
 
+type FixedBill = {
+    billId: string;
+    name: string;
+    description?: string;
+    amount: number;
+    dueDay: number;
+    category: string;
+    status: "ACTIVE" | "PAUSED" | "CANCELLED";
+    autopay: boolean;
+    reminder: boolean;
+    paymentHistory: Array<{
+        paymentId: string;
+        month: string;
+        amount: number;
+        paid: boolean;
+        paidDate?: string;
+        createdAt: string;
+    }>;
+    createdAt?: string;
+    updatedAt?: string;
+};
+
 type Config = {
     id: string;
     userId: string;
@@ -27,12 +49,7 @@ type Config = {
     monthlyIncome?: number;
     monthLimit?: number;
     currentSpent?: number;
-    fixedBills?: Array<{
-        name: string;
-        amount: number;
-        dueDay: number;
-        paid: boolean;
-    }>;
+    fixedBills?: FixedBill[];
     goals?: Array<{
         title: string;
         targetAmount: number;
@@ -55,8 +72,6 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
 
     loadConfig: async (userId: string) => {
         const res = await apiRequest(`/config/${userId}`, 'GET') as Config;
-        console.log(res);
-        
         const cfg = res;
         set({ cfg });
     },
