@@ -21,7 +21,7 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
 
     // Calcula o status de pagamento do mês atual
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-    debugger
+
     const billsWithStatus = activeBills.map(bill => {
         const currentPayment = bill.paymentHistory?.find(p => p.month === currentMonth);
         return {
