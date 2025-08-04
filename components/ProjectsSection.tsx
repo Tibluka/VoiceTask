@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
+        marginVertical: 8,
         gap: 8,
     },
     sectionTitle: {

@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     strategyContainer: {
         flexDirection: 'row',
         gap: 8,
-        marginBottom: 16,
+        marginVertical: 8,
     },
     miniCard: {
         flex: 1,

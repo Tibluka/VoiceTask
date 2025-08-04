@@ -51,21 +51,20 @@ export const UserStats = () => {
         <View style={styles.wrapper}>
             {/* Seção de Finanças */}
             <FinanceSection
-                monthlyIncome={cfg?.monthlyIncome}
                 monthLimit={cfg?.monthLimit}
             />
 
             {/* Cards de Estratégia */}
             <StrategySection values={strategyValues || { needs: 50, wants: 30, investments: 20 }} />
 
+            {/* Seção de Projetos */}
+            <ProjectsSection projects={cfg?.projects || []} />
+            
             {/* Card de Metas */}
             <GoalsSection goalsCount={cfg?.goals?.length || 0} />
 
             {/* Seção de Contas Fixas */}
             <FixedBillsSection fixedBills={cfg?.fixedBills} onBillPaid={confirmPaidBill} />
-
-            {/* Seção de Projetos */}
-            <ProjectsSection projects={cfg?.projects || []} />
         </View>
     );
 };

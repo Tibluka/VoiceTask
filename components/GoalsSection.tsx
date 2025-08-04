@@ -14,29 +14,47 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({ goalsCount }) => {
     const subtitleColor = useThemeColor({ light: '#666', dark: '#aaa' }, 'text');
 
     return (
-        <View style={[styles.goalsCard, { backgroundColor: cardBg }]}>
-            <View style={styles.goalsHeader}>
-                <View style={styles.goalsIconContainer}>
-                    <Ionicons name="flag" size={24} color="#ffd93d" />
-                </View>
-                <View style={styles.goalsInfo}>
-                    <ThemedText style={[styles.goalsLabel, { color: subtitleColor }]}>
-                        Metas ativas
-                    </ThemedText>
-                    <ThemedText style={[styles.goalsValue, { color: textColor }]}>
-                        {goalsCount}
-                    </ThemedText>
+        <>
+            <View style={[styles.sectionHeader, { marginTop: 24 }]}>
+                <Ionicons name="trophy-outline" size={24} color={textColor} />
+                <ThemedText type="subtitle" style={styles.sectionTitle}>
+                    Metas
+                </ThemedText>
+            </View>
+            <View style={[styles.goalsCard, { backgroundColor: cardBg }]}>
+                <View style={styles.goalsHeader}>
+                    <View style={styles.goalsIconContainer}>
+                        <Ionicons name="flag" size={24} color="#ffd93d" />
+                    </View>
+                    <View style={styles.goalsInfo}>
+                        <ThemedText style={[styles.goalsLabel, { color: subtitleColor }]}>
+                            Metas ativas
+                        </ThemedText>
+                        <ThemedText style={[styles.goalsValue, { color: textColor }]}>
+                            {goalsCount}
+                        </ThemedText>
+                    </View>
                 </View>
             </View>
-        </View>
+        </>
     );
 };
 
 const styles = StyleSheet.create({
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 8,
+        gap: 8,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '600',
+    },
     goalsCard: {
         padding: 16,
         borderRadius: 16,
-        marginBottom: 16,
+        marginVertical: 8,
         elevation: 2,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
