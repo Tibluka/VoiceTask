@@ -1,5 +1,5 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { FixedBillsSectionProps } from '@/interfaces/FixedBills';
+import { FixedBill, FixedBillsSectionProps } from '@/interfaces/FixedBills';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
@@ -22,7 +22,7 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
     // Calcula o status de pagamento do mês atual
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
 
-    const billsWithStatus = activeBills.map(bill => {
+    const billsWithStatus = activeBills.map((bill: FixedBill) => {
         const currentPayment = bill.paymentHistory?.find(p => p.month === currentMonth);
         return {
             ...bill,
@@ -46,7 +46,7 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
         }).format(value);
     };
 
-    const getCategoryIcon = (category: string) => {
+    const getCategoryIcon = (category: string): any => {
         const icons: Record<string, string> = {
             'HOUSING': 'home',
             'UTILITIES': 'flash-on',
@@ -69,7 +69,6 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
                 </ThemedText>
             </View>
 
-            {/* Estatísticas de Contas Fixas */}
             <View style={styles.statsContainer}>
                 <LinearGradient
                     colors={isDark ? ['#1b5e20', '#2e7d32'] : ['#e8f5e9', '#c8e6c9']}
@@ -157,12 +156,32 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({ fixedBills
                                         ]}>
                                             {formatCurrency(bill.amount)}
                                         </ThemedText>
+                                        {/* Ícones de status: checkmark se pago, e se for autopay, ícone de reloginho */}
                                         {bill.isPaid && (
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                                                <Ionicons
+                                                    name="checkmark-circle"
+                                                    size={20}
+                                                    color="#4caf50"
+                                                    style={styles.paidIcon}
+                                                />
+                                                {bill.autopay && (
+                                                    <Ionicons
+                                                        name="repeat"
+                                                        size={18}
+                                                        color="#4caf50"
+                                                        style={[styles.paidIcon, { marginLeft: 2 }]}
+                                                    />
+                                                )}
+                                            </View>
+                                        )}
+
+                                        {!bill.isPaid && bill.autopay && (
                                             <Ionicons
-                                                name="checkmark-circle"
-                                                size={20}
+                                                name="repeat"
+                                                size={18}
                                                 color="#4caf50"
-                                                style={styles.paidIcon}
+                                                style={[styles.paidIcon, { marginTop: 2 }]}
                                             />
                                         )}
                                     </View>
