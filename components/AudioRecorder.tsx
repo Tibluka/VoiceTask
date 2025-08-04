@@ -21,6 +21,7 @@ import {
   View
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { NotificationIndicator } from './NotificationIndicator';
 import { TextInputField } from './TextInputField';
 import { ThemedText } from './ThemedText';
 import { TypingIndicator } from './TypingIndicator';
@@ -186,54 +187,58 @@ export default function AudioRecorder() {
   const showGreeting = messages.length === 0 && !thinking && !transcribing;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ThemedView style={styles.container}>
-          {
-            messages.length > 0 &&
-            <FlatList
-              data={messages}
-              keyExtractor={(_, i) => i.toString()}
-              renderItem={({ item }) =>
-                <AudioMessage
-                  message={item.gpt_answer}
-                  chart_data={item.chart_data}
-                  consult_results={item.consult_results}
-                  type={item.type} />
-              }
-              contentContainerStyle={[
-                styles.list,
-                { paddingBottom: showTextInput ? 180 : 120 }
-              ]}
-              inverted
-              keyboardShouldPersistTaps="handled"
-            />
-          }
+    <>
+      <NotificationIndicator />
 
-          {thinking && (
-            <>
-              <TypingIndicator />
-            </>
-          )}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ThemedView style={styles.container}>
+            {
+              messages.length > 0 &&
+              <FlatList
+                data={messages}
+                keyExtractor={(_, i) => i.toString()}
+                renderItem={({ item }) =>
+                  <AudioMessage
+                    message={item.gpt_answer}
+                    chart_data={item.chart_data}
+                    consult_results={item.consult_results}
+                    type={item.type} />
+                }
+                contentContainerStyle={[
+                  styles.list,
+                  { paddingBottom: showTextInput ? 180 : 120 }
+                ]}
+                inverted
+                keyboardShouldPersistTaps="handled"
+              />
+            }
 
-          {transcribing && (
-            <View style={styles.overlay}>
-              <View style={styles.loaderBox}>
-                <ActivityIndicator size="large" color="#4A90E2" />
-                <ThemedText style={styles.loaderText}>Transcrevendo áudio...</ThemedText>
+            {thinking && (
+              <>
+                <TypingIndicator />
+              </>
+            )}
+
+            {transcribing && (
+              <View style={styles.overlay}>
+                <View style={styles.loaderBox}>
+                  <ActivityIndicator size="large" color="#4A90E2" />
+                  <ThemedText style={styles.loaderText}>Transcrevendo áudio...</ThemedText>
+                </View>
               </View>
-            </View>
-          )}
+            )}
 
-          <InitialGreeting visible={showGreeting} onQuestionSelect={handleQuestionSelect} />
+            <InitialGreeting visible={showGreeting} onQuestionSelect={handleQuestionSelect} />
 
-          {renderInputArea()}
-        </ThemedView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+            {renderInputArea()}
+          </ThemedView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </>
   );
 }
 

@@ -4,6 +4,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { useAuthStore } from '@/zustand/AuthStore/useAuthStore';
 import { useUserStore } from '@/zustand/UserStores/useUserStore';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     Alert,
@@ -17,6 +18,7 @@ import {
 } from 'react-native';
 
 export default function ProfileScreen() {
+    const router = useRouter();
     const { user, refreshUser, loadUser, clearUser } = useUserStore();
     const { clearToken } = useAuthStore();
     const systemScheme = useColorScheme();
@@ -60,6 +62,14 @@ export default function ProfileScreen() {
             contentContainerStyle={styles.container}
         >
             <View style={styles.profileHeader}>
+               {/*  <TouchableOpacity
+                    onPress={() => router.replace('/notification-settings')}
+                >
+                    <Ionicons name="notifications" size={24} color={"green"} />
+                    <ThemedText>
+                        Configurações de Notificações
+                    </ThemedText>
+                </TouchableOpacity> */}
                 <Image
                     source={
                         user?.avatar
