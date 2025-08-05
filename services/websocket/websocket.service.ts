@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import io, { Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 
 interface NotificationData {
     type: string;
@@ -58,22 +58,21 @@ class WebSocketService {
 
             // Converter URL da API para URL do WebSocket
             // Se a API está em https://voicetaskapi.onrender.com
-            // O WebSocket será em wss://voicetaskapi.onrender.com
+
             const wsUrl = apiUrl
                 .replace('/api', '')
-                .replace('https://', 'wss://')
-                .replace('http://', 'ws://');
+                .replace('https://', 'wss://');
 
             console.log('Connecting to WebSocket:', wsUrl);
 
             // Conectar ao servidor WebSocket
-            this.socket = io(wsUrl, {
-                transports: ['websocket'],
-                autoConnect: true,
-                reconnection: true,
-                reconnectionDelay: this.reconnectDelay,
-                reconnectionAttempts: this.maxReconnectAttempts,
-            });
+            /*  this.socket = io(wsUrl, {
+                 transports: ['websocket'],
+                 autoConnect: true,
+                 reconnection: true,
+                 reconnectionDelay: this.reconnectDelay,
+                 reconnectionAttempts: this.maxReconnectAttempts,
+             }); */
 
             this.setupEventListeners(token);
         } catch (error) {
