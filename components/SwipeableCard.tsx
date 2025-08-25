@@ -193,7 +193,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   content: {
-    backgroundColor: "white",
     zIndex: 1,
   },
   defaultDeleteContent: {
