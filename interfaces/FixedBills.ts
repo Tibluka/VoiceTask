@@ -1,3 +1,5 @@
+import { CreateBillData } from "@/components/CreateBillModal";
+
 export type FixedBill = {
     billId: string;
     name: string;
@@ -8,16 +10,35 @@ export type FixedBill = {
     status: "ACTIVE" | "PAUSED" | "CANCELLED";
     autopay: boolean;
     reminder: boolean;
-    paymentHistory: Array<{
-        paymentId: string;
-        month: string;
-        amount: number;
-        paid: boolean;
-        paidDate?: string;
-    }>;
+    paymentHistory: PaymentHistory[];
 };
+
+export interface PaymentHistory {
+    month: string; // YYYY-MM format
+    paid: boolean;
+    paidDate?: string;
+    amount?: number;
+}
 
 export interface FixedBillsSectionProps {
     fixedBills?: FixedBill[];
-    onBillPaid: any;
+    onBillPaid: (bill: FixedBill) => void;
+    onCreateBill?: (billData: CreateBillData) => void;
+
+}
+
+export enum BillCategory {
+    HOUSING = "HOUSING",
+    UTILITIES = "UTILITIES",
+    TRANSPORTATION = "TRANSPORTATION",
+    INSURANCE = "INSURANCE",
+    EDUCATION = "EDUCATION",
+    ENTERTAINMENT = "ENTERTAINMENT",
+    HEALTH = "HEALTH",
+    OTHER = "OTHER"
+}
+
+export enum BillStatus {
+    ACTIVE = "ACTIVE",
+    INACTIVE = "INACTIVE"
 }

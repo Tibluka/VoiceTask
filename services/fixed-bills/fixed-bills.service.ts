@@ -7,3 +7,16 @@ export const payBill = async (
 ): Promise<any> => {
     await apiRequest(`/fixed-bills/${billId}/pay`, 'POST', { amount, yearMonth }, false);
 }
+
+export const createFixedBill = async (
+    name: string,
+    amount: number,
+    dueDay: number,
+    category: string,
+    autopay?: boolean,
+    reminder?: boolean,
+    description?: string
+): Promise<any> => {
+    const requiredFields = { name, amount, dueDay, category, autopay, reminder, description };
+    return await apiRequest('/fixed-bills', 'POST', requiredFields, false);
+}
