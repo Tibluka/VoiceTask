@@ -2,8 +2,6 @@ import React, { useRef, useState } from "react";
 import {
   Animated,
   GestureResponderEvent,
-  PanResponder,
-  PanResponderGestureState,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -32,138 +30,92 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
   const translateX = useRef(new Animated.Value(0)).current;
   const [isOpen, setIsOpen] = useState(false);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
+  // Estados para controle manual do toque
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const currentX = useRef(0);
+  const isTracking = useRef(false);
+  const [currentTranslateX, setCurrentTranslateX] = useState(0);
 
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        if (disabled) return false;
-        const { dx, dy } = gestureState;
-        // Threshold maior para evitar conflito com taps
-        return Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 2;
-      },
+  const handleTouchStart = (event: GestureResponderEvent) => {
+    if (disabled) return;
 
-      onMoveShouldSetPanResponderCapture: (_, gestureState) => {
-        if (disabled) return false;
-        const { dx, dy } = gestureState;
-        // Só captura se for claramente um movimento horizontal
-        return Math.abs(dx) > 15 && Math.abs(dx) > Math.abs(dy) * 3;
-      },
+    const { pageX, pageY } = event.nativeEvent;
+    startX.current = pageX;
+    startY.current = pageY;
+    currentX.current = currentTranslateX;
+    isTracking.current = true;
 
-      // Importante: previne que o gesto seja cancelado por outros componentes
-      onPanResponderTerminationRequest: () => false,
+    // Para animações em andamento
+    translateX.stopAnimation();
+  };
 
-      onPanResponderGrant: () => {
-        // Para qualquer animação em andamento ANTES de setar offset
-        translateX.stopAnimation(() => {
-          // @ts-ignore
-          const currentValue = translateX._value;
-          translateX.setOffset(currentValue);
-          translateX.setValue(0);
-        });
-      },
+  const handleTouchMove = (event: GestureResponderEvent) => {
+    if (!isTracking.current || disabled) return;
 
-      onPanResponderMove: (
-        event: GestureResponderEvent,
-        gestureState: PanResponderGestureState
-      ) => {
-        const { dx } = gestureState;
+    const { pageX, pageY } = event.nativeEvent;
+    const deltaX = pageX - startX.current;
+    const deltaY = pageY - startY.current;
 
-        // @ts-ignore
-        const currentOffset = translateX._offset;
-        let newValue = dx;
+    // Verifica se é movimento horizontal
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+      // Limita o movimento
+      let newValue = deltaX;
+      if (isOpen) {
+        // Se aberto, permite fechar (movimento para direita)
+        newValue = Math.min(
+          deleteThreshold,
+          Math.max(-deleteThreshold * 0.5, deltaX)
+        );
+      } else {
+        // Se fechado, permite apenas abrir (movimento para esquerda)
+        newValue = Math.min(0, Math.max(-deleteThreshold * 1.2, deltaX));
+      }
 
-        if (currentOffset === 0) {
-          // Fechado - permite arrastar para ambos os lados, mas limita à esquerda
-          newValue = Math.min(0, Math.max(-deleteThreshold, dx));
-        } else {
-          // Aberto - permite movimento controlado em ambas direções
-          const totalValue = currentOffset + dx;
-          if (totalValue > 0) {
-            // Permite swipe para direita além da posição fechada para reset
-            newValue = Math.min(deleteThreshold * 0.3, -currentOffset + dx);
-          } else if (totalValue < -deleteThreshold) {
-            newValue = -deleteThreshold - currentOffset;
-          } else {
-            newValue = dx;
-          }
-        }
+      translateX.setValue(currentX.current + newValue);
+      setCurrentTranslateX(currentX.current + newValue);
+    }
+  };
 
-        // Aplicar o valor calculado
-        translateX.setValue(newValue);
-      },
+  const handleTouchEnd = (event: GestureResponderEvent) => {
+    if (!isTracking.current || disabled) return;
 
-      onPanResponderRelease: (_, gestureState) => {
-        translateX.flattenOffset();
+    const { pageX } = event.nativeEvent;
+    const deltaX = pageX - startX.current;
 
-        const { vx, dx } = gestureState;
-        // @ts-ignore
-        const currentValue = translateX._value;
+    isTracking.current = false;
 
-        let shouldOpen = false;
-        let shouldReset = false;
-
-        if (Math.abs(vx) > 0.3) {
-          // Velocidade alta - usa direção
-          if (vx < 0) {
-            shouldOpen = true; // Swipe rápido para esquerda - abre
-          } else {
-            shouldReset = true; // Swipe rápido para direita - reset
-          }
-        } else {
-          // Velocidade baixa - usa posição
-          if (currentValue < -deleteThreshold * 0.4) {
-            shouldOpen = true; // Posição suficiente à esquerda - abre
-          } else if (currentValue > deleteThreshold * 0.1) {
-            shouldReset = true; // Posição à direita - reset
-          } else {
-            // Posição neutra - decide baseado na direção do movimento
-            shouldReset = dx > 0;
-          }
-        }
-
-        let targetValue = 0; // Fechado por padrão
-        let finalIsOpen = false;
-
-        if (shouldReset) {
-          targetValue = 0; // Reset para posição fechada
-          finalIsOpen = false;
-        } else if (shouldOpen) {
-          targetValue = -deleteThreshold; // Abre
-          finalIsOpen = true;
-        } else {
-          // Mantém estado atual se não há decisão clara
-          targetValue = isOpen ? -deleteThreshold : 0;
-          finalIsOpen = isOpen;
-        }
-
-        Animated.spring(translateX, {
-          toValue: targetValue,
-          useNativeDriver: true,
-          tension: 40,
-          friction: 7,
-        }).start(() => {
-          setIsOpen(finalIsOpen);
-        });
-      },
-
-      onPanResponderTerminate: () => {
-        translateX.flattenOffset();
-
-        Animated.spring(translateX, {
-          toValue: isOpen ? -deleteThreshold : 0,
-          useNativeDriver: true,
-          tension: 40,
-          friction: 7,
-        }).start();
-      },
-
-      onShouldBlockNativeResponder: () => true,
-    })
-  ).current;
+    // Decide se abre ou fecha baseado na distância
+    if (deltaX < -deleteThreshold * 0.4) {
+      // Swipe para esquerda - abre
+      Animated.spring(translateX, {
+        toValue: -deleteThreshold,
+        useNativeDriver: true,
+      }).start();
+      setIsOpen(true);
+      setCurrentTranslateX(-deleteThreshold);
+    } else if (deltaX > deleteThreshold * 0.3) {
+      // Swipe para direita - fecha
+      Animated.spring(translateX, {
+        toValue: 0,
+        useNativeDriver: true,
+      }).start();
+      setIsOpen(false);
+      setCurrentTranslateX(0);
+    } else {
+      // Volta para o estado anterior
+      const targetValue = isOpen ? -deleteThreshold : 0;
+      Animated.spring(translateX, {
+        toValue: targetValue,
+        useNativeDriver: true,
+      }).start();
+      setCurrentTranslateX(targetValue);
+    }
+  };
 
   const handleDelete = () => {
     setIsOpen(false);
+    setCurrentTranslateX(0);
     Animated.timing(translateX, {
       toValue: 0,
       duration: 200,
@@ -207,7 +159,9 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
             transform: [{ translateX }],
           },
         ]}
-        {...panResponder.panHandlers}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {children}
       </Animated.View>
@@ -236,7 +190,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   content: {
-    backgroundColor: "transparent",
+    backgroundColor: "white",
+    zIndex: 1,
   },
   defaultDeleteContent: {
     alignItems: "center",

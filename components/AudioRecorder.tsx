@@ -1,13 +1,13 @@
 // AudioRecorder.tsx
-import { AudioMessage } from '@/components/AudioMessage';
-import { InitialGreeting } from '@/components/InitialGreeting'; // Novo import
-import { MicButton } from '@/components/MicButton';
-import { ThemedView } from '@/components/ThemedView';
-import { useAudioRecorder } from '@/hooks/useAudioRecorder';
-import { TranscriptionResponse } from '@/interfaces/Transcription';
-import { executeQuery } from '@/services/execute-query/execure-query.service';
-import { sendAudioToApi } from '@/services/transcription/transcription.service';
-import React, { useEffect, useRef, useState } from 'react';
+import { AudioMessage } from "@/components/AudioMessage";
+import { InitialGreeting } from "@/components/InitialGreeting"; // Novo import
+import { MicButton } from "@/components/MicButton";
+import { ThemedView } from "@/components/ThemedView";
+import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import { TranscriptionResponse } from "@/interfaces/Transcription";
+import { executeQuery } from "@/services/execute-query/execure-query.service";
+import { sendAudioToApi } from "@/services/transcription/transcription.service";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -18,20 +18,21 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
-} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { NotificationIndicator } from './NotificationIndicator';
-import { TextInputField } from './TextInputField';
-import { ThemedText } from './ThemedText';
-import { TypingIndicator } from './TypingIndicator';
+  View,
+} from "react-native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { NotificationIndicator } from "./NotificationIndicator";
+import { TextInputField } from "./TextInputField";
+import { ThemedText } from "./ThemedText";
+import { TypingIndicator } from "./TypingIndicator";
 
 export default function AudioRecorder() {
-  const { isRecording, startRecording, stopRecording, cancelRecording } = useAudioRecorder();
+  const { isRecording, startRecording, stopRecording, cancelRecording } =
+    useAudioRecorder();
   const [messages, setMessages] = useState<TranscriptionResponse[]>([]);
   const [transcribing, setTranscribing] = useState(false);
   const [thinking, setThinking] = useState(false);
-  const [textInput, setTextInput] = useState('');
+  const [textInput, setTextInput] = useState("");
   const [showTextInput, setShowTextInput] = useState(false);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -39,8 +40,16 @@ export default function AudioRecorder() {
     if (isRecording) {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(pulseAnim, { toValue: 1.5, duration: 600, useNativeDriver: true }),
-          Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+          Animated.timing(pulseAnim, {
+            toValue: 1.5,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
         ])
       ).start();
     } else {
@@ -67,9 +76,8 @@ export default function AudioRecorder() {
           setThinking(false);
           if (response) addGptMessage(response);
           console.log(response);
-
         } catch (error) {
-          console.error('Erro no processo:', error);
+          console.error("Erro no processo:", error);
           setTranscribing(false);
           setThinking(false);
         }
@@ -82,7 +90,7 @@ export default function AudioRecorder() {
   const handleTextSubmit = async () => {
     if (textInput.trim() && !thinking) {
       const message = textInput.trim();
-      setTextInput('');
+      setTextInput("");
       setShowTextInput(false);
       Keyboard.dismiss();
 
@@ -94,7 +102,7 @@ export default function AudioRecorder() {
         setThinking(false);
         if (response) addGptMessage(response);
       } catch (error) {
-        console.error('Erro no processo:', error);
+        console.error("Erro no processo:", error);
         setThinking(false);
       }
     }
@@ -105,13 +113,13 @@ export default function AudioRecorder() {
     if (!showTextInput) {
       // Input será focado automaticamente pelo componente TextInputField
     } else {
-      setTextInput('');
+      setTextInput("");
       Keyboard.dismiss();
     }
   };
 
   const handleInputClose = () => {
-    setTextInput('');
+    setTextInput("");
     setShowTextInput(false);
     Keyboard.dismiss();
   };
@@ -156,17 +164,17 @@ export default function AudioRecorder() {
     const userMessage = {
       description: text,
       gpt_answer: text,
-      type: 'user'
+      type: "user",
     };
-    setMessages(prev => [userMessage, ...prev]);
+    setMessages((prev) => [userMessage, ...prev]);
   };
 
   const addGptMessage = (response: TranscriptionResponse) => {
     const gptMessage = {
       ...response,
-      type: 'system'
+      type: "system",
     };
-    setMessages(prev => [gptMessage, ...prev]);
+    setMessages((prev) => [gptMessage, ...prev]);
   };
 
   const handleQuestionSelect = async (question: string) => {
@@ -178,7 +186,7 @@ export default function AudioRecorder() {
       setThinking(false);
       if (response) addGptMessage(response);
     } catch (error) {
-      console.error('Erro no processo:', error);
+      console.error("Erro no processo:", error);
       setThinking(false);
     }
   };
@@ -192,30 +200,33 @@ export default function AudioRecorder() {
 
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ThemedView style={styles.container}>
-            {
-              messages.length > 0 &&
+            {messages.length > 0 && (
               <FlatList
                 data={messages}
                 keyExtractor={(_, i) => i.toString()}
-                renderItem={({ item }) =>
+                renderItem={({ item }) => (
                   <AudioMessage
                     message={item.gpt_answer}
                     chart_data={item.chart_data}
                     consult_results={item.consult_results}
-                    type={item.type} />
-                }
+                    type={item.type}
+                  />
+                )}
                 contentContainerStyle={[
                   styles.list,
-                  { paddingBottom: showTextInput ? 180 : 120 }
+                  { paddingBottom: showTextInput ? 180 : 120 },
                 ]}
                 inverted
                 keyboardShouldPersistTaps="handled"
+                scrollEnabled={true}
+                nestedScrollEnabled={true}
+                removeClippedSubviews={false}
               />
-            }
+            )}
 
             {thinking && (
               <>
@@ -227,12 +238,17 @@ export default function AudioRecorder() {
               <View style={styles.overlay}>
                 <View style={styles.loaderBox}>
                   <ActivityIndicator size="large" color="#4A90E2" />
-                  <ThemedText style={styles.loaderText}>Transcrevendo áudio...</ThemedText>
+                  <ThemedText style={styles.loaderText}>
+                    Transcrevendo áudio...
+                  </ThemedText>
                 </View>
               </View>
             )}
 
-            <InitialGreeting visible={showGreeting} onQuestionSelect={handleQuestionSelect} />
+            <InitialGreeting
+              visible={showGreeting}
+              onQuestionSelect={handleQuestionSelect}
+            />
 
             {renderInputArea()}
           </ThemedView>
@@ -246,44 +262,47 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   list: {
     paddingHorizontal: 16,
-    paddingVertical: 120
+    paddingVertical: 120,
   },
   overlay: {
-    position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.2)",
   },
   loaderBox: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   loaderText: {
     marginTop: 10,
     fontSize: 14,
-    color: '#333'
+    color: "#333",
   },
   micContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 30,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 16,
   },
   textButton: {
-    backgroundColor: '#f0f8ff',
+    backgroundColor: "#f0f8ff",
     width: 48,
     height: 48,
     borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 2,
-    borderColor: '#4A90E2',
+    borderColor: "#4A90E2",
   },
 });

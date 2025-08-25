@@ -1,36 +1,36 @@
-import React, { useState } from 'react';
-import { useWindowDimensions } from 'react-native';
-import { SceneMap, TabView } from 'react-native-tab-view';
+import React, { useState } from "react";
+import { useWindowDimensions } from "react-native";
+import { SceneMap, TabView } from "react-native-tab-view";
 
-import AudioRecorder from '@/components/AudioRecorder';
-import { Footer } from '@/components/Footer';
-import ProfileScreen from './profile-screen';
+import AudioRecorder from "@/components/AudioRecorder";
+import { Footer } from "@/components/Footer";
+import ProfileScreen from "./profile-screen";
 
 const renderScene = SceneMap({
-    chat: AudioRecorder,
-    profile: ProfileScreen,
+  chat: AudioRecorder,
+  profile: ProfileScreen,
 });
 
 export default function MainTabs() {
-    const layout = useWindowDimensions();
+  const layout = useWindowDimensions();
 
-    const [index, setIndex] = useState(0);
-    const [routes] = useState([
-        { key: 'chat', title: 'Chat' },
-        { key: 'profile', title: 'Perfil' },
-    ]);
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    { key: "chat", title: "Chat" },
+    { key: "profile", title: "Perfil" },
+  ]);
 
-    return (
-        <>
-            <TabView
-                navigationState={{ index, routes }}
-                renderScene={renderScene}
-                onIndexChange={setIndex}
-                initialLayout={{ width: layout.width }}
-                swipeEnabled
-                renderTabBar={() => null}
-            />
-            <Footer selectedIndex={index} onTabPress={setIndex} />
-        </>
-    );
+  return (
+    <>
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        swipeEnabled={false}
+        renderTabBar={() => null}
+      />
+      <Footer selectedIndex={index} onTabPress={setIndex} />
+    </>
+  );
 }

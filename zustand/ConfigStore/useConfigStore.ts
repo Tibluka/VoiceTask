@@ -21,6 +21,7 @@ type FixedBill = {
     description?: string;
     amount: number;
     dueDay: number;
+    paid: boolean;
     category: string;
     status: "ACTIVE" | "PAUSED" | "CANCELLED";
     autopay: boolean;

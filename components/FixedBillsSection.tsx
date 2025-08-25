@@ -254,7 +254,6 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({
               deleteButtonContent={<DeleteButtonContent />}
               deleteButtonStyle={styles.deleteBackground}
               containerStyle={styles.swipeContainer}
-              disabled={bill.isPaid} // Desabilita swipe quando pago
             >
               <TouchableOpacity
                 disabled={bill.isPaid}
