@@ -16,6 +16,8 @@ interface SwipeableCardProps {
   deleteButtonStyle?: ViewStyle;
   containerStyle?: ViewStyle;
   disabled?: boolean;
+  onSwipeStart?: () => void;
+  onSwipeEnd?: () => void;
 }
 
 export const SwipeableCard: React.FC<SwipeableCardProps> = ({
@@ -26,15 +28,17 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
   deleteButtonStyle,
   containerStyle,
   disabled = false,
+  onSwipeStart,
+  onSwipeEnd,
 }) => {
   const translateX = useRef(new Animated.Value(0)).current;
   const [isOpen, setIsOpen] = useState(false);
 
-  // Estados para controle manual do toque
   const startX = useRef(0);
   const startY = useRef(0);
   const currentX = useRef(0);
   const isTracking = useRef(false);
+  const hasCalledSwipeStart = useRef(false);
   const [currentTranslateX, setCurrentTranslateX] = useState(0);
 
   const handleTouchStart = (event: GestureResponderEvent) => {
@@ -45,8 +49,8 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
     startY.current = pageY;
     currentX.current = currentTranslateX;
     isTracking.current = true;
+    hasCalledSwipeStart.current = false;
 
-    // Para animações em andamento
     translateX.stopAnimation();
   };
 
@@ -57,18 +61,19 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
     const deltaX = pageX - startX.current;
     const deltaY = pageY - startY.current;
 
-    // Verifica se é movimento horizontal
+    if (!hasCalledSwipeStart.current && Math.abs(deltaX) > 3) {
+      onSwipeStart?.();
+      hasCalledSwipeStart.current = true;
+    }
+
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-      // Limita o movimento
       let newValue = deltaX;
       if (isOpen) {
-        // Se aberto, permite fechar (movimento para direita)
         newValue = Math.min(
           deleteThreshold,
           Math.max(-deleteThreshold * 0.5, deltaX)
         );
       } else {
-        // Se fechado, permite apenas abrir (movimento para esquerda)
         newValue = Math.min(0, Math.max(-deleteThreshold * 1.2, deltaX));
       }
 
@@ -85,9 +90,9 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
 
     isTracking.current = false;
 
-    // Decide se abre ou fecha baseado na distância
+    onSwipeEnd?.();
+
     if (deltaX < -deleteThreshold * 0.4) {
-      // Swipe para esquerda - abre
       Animated.spring(translateX, {
         toValue: -deleteThreshold,
         useNativeDriver: true,
@@ -95,7 +100,6 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
       setIsOpen(true);
       setCurrentTranslateX(-deleteThreshold);
     } else if (deltaX > deleteThreshold * 0.3) {
-      // Swipe para direita - fecha
       Animated.spring(translateX, {
         toValue: 0,
         useNativeDriver: true,
@@ -103,7 +107,6 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
       setIsOpen(false);
       setCurrentTranslateX(0);
     } else {
-      // Volta para o estado anterior
       const targetValue = isOpen ? -deleteThreshold : 0;
       Animated.spring(translateX, {
         toValue: targetValue,

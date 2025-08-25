@@ -4,6 +4,7 @@ import { SceneMap, TabView } from "react-native-tab-view";
 
 import AudioRecorder from "@/components/AudioRecorder";
 import { Footer } from "@/components/Footer";
+import { useSwipeStore } from "@/zustand/SwipeStore/SwipeStore";
 import ProfileScreen from "./profile-screen";
 
 const renderScene = SceneMap({
@@ -13,6 +14,7 @@ const renderScene = SceneMap({
 
 export default function MainTabs() {
   const layout = useWindowDimensions();
+  const isCardSwiping = useSwipeStore((state) => state.isCardSwiping);
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -27,7 +29,7 @@ export default function MainTabs() {
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={{ width: layout.width }}
-        swipeEnabled={false}
+        swipeEnabled={!isCardSwiping} // Desabilita swipe quando card está sendo arrastado
         renderTabBar={() => null}
       />
       <Footer selectedIndex={index} onTabPress={setIndex} />

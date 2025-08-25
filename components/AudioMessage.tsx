@@ -3,12 +3,13 @@ import { ConsultResult } from "@/interfaces/Transcription";
 import { deleteSpending } from "@/services/spendings/spendings.service";
 import { formatCurrency } from "@/utils/format";
 import { renderFormattedText } from "@/utils/textFormat";
+import { useSwipeStore } from "@/zustand/SwipeStore/SwipeStore";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import ChartScreen from "./ChartScreen";
-import { SwipeableCard } from "./SwipeableCard"; // Import do novo componente
+import { SwipeableCard } from "./SwipeableCard";
 import { ThemedText } from "./ThemedText";
 
 interface Props {
@@ -31,6 +32,7 @@ export const AudioMessage = ({
   type,
 }: Props) => {
   const isUser = type === "user";
+  const setCardSwiping = useSwipeStore((state) => state.setCardSwiping);
 
   const [results, setResults] = useState(consult_results ?? []);
 
@@ -47,6 +49,14 @@ export const AudioMessage = ({
         },
       },
     ]);
+  };
+
+  const handleSwipeStart = () => {
+    setCardSwiping(true);
+  };
+
+  const handleSwipeEnd = () => {
+    setCardSwiping(false);
   };
 
   // Componente do conteúdo do botão de delete
@@ -76,6 +86,8 @@ export const AudioMessage = ({
             deleteButtonStyle={styles.deleteBackground}
             containerStyle={styles.swipeContainer}
             disabled={false}
+            onSwipeStart={handleSwipeStart}
+            onSwipeEnd={handleSwipeEnd}
           >
             <View style={styles.card}>
               <View style={styles.cardLeft}>
@@ -255,7 +267,7 @@ const styles = StyleSheet.create({
   valueIncome: {
     color: "#43a047",
   },
-  // Novos estilos para SwipeableCard
+  // Estilos para SwipeableCard
   swipeContainer: {
     marginBottom: 8,
     borderRadius: 8,
