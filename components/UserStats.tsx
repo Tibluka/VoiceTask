@@ -1,6 +1,7 @@
 import { FixedBill } from "@/interfaces/FixedBills";
 import {
   createFixedBill,
+  deleteFixedBill,
   payBill,
 } from "@/services/fixed-bills/fixed-bills.service";
 import { useConfigStore } from "@/zustand/ConfigStore/useConfigStore";
@@ -46,9 +47,6 @@ export const UserStats = () => {
 
       console.log("Conta criada:", response);
 
-      // Atualiza o estado local
-      // setFixedBills(prev => [...prev, response]);
-
       Alert.alert(
         "✅ Conta Criada!",
         `${billData.name} adicionada com sucesso!\n\n💰 R$ ${billData.amount
@@ -58,6 +56,26 @@ export const UserStats = () => {
         }`,
         [{ text: "Perfeito!" }]
       );
+      loadConfig(user!.id);
+    } catch (error: any) {
+      console.error("Erro:", error);
+
+      Alert.alert(
+        "Ops! ❌",
+        error.response?.data?.message || error.message || "Erro ao criar conta",
+        [{ text: "Tentar novamente" }]
+      );
+    }
+  };
+
+  const deleteBill = async (billId: string) => {
+    try {
+      await deleteFixedBill(billId);
+
+      Alert.alert("✅ Conta Removida!", `Removida com sucesso!`, [
+        { text: "Ok!" },
+      ]);
+      loadConfig(user!.id);
     } catch (error: any) {
       console.error("Erro:", error);
 
@@ -83,7 +101,7 @@ export const UserStats = () => {
               const yearMonth = new Date().toISOString().slice(0, 7);
               await payBill(bill.billId, bill.amount, yearMonth);
               Alert.alert("Sucesso", "Conta marcada como paga!");
-              await loadConfig(user!.id);
+              loadConfig(user!.id);
             } catch (error: any) {
               Alert.alert(
                 "Erro",
@@ -117,6 +135,7 @@ export const UserStats = () => {
         fixedBills={cfg?.fixedBills}
         onBillPaid={confirmPaidBill}
         onCreateBill={createBill}
+        onDeleteFixedBill={deleteBill}
       />
     </View>
   );

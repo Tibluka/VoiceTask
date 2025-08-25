@@ -20,3 +20,7 @@ export const createFixedBill = async (
     const requiredFields = { name, amount, dueDay, category, autopay, reminder, description };
     return await apiRequest('/fixed-bills', 'POST', requiredFields, false);
 }
+
+export const deleteFixedBill = async (billId: string): Promise<any> => {
+    return await apiRequest(`/fixed-bills/${billId}`, 'DELETE', null, false);
+};

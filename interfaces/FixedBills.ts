@@ -5,6 +5,7 @@ export type FixedBill = {
     name: string;
     description?: string;
     amount: number;
+    paid: boolean;
     dueDay: number;
     category: string;
     status: "ACTIVE" | "PAUSED" | "CANCELLED";
@@ -24,7 +25,7 @@ export interface FixedBillsSectionProps {
     fixedBills?: FixedBill[];
     onBillPaid: (bill: FixedBill) => void;
     onCreateBill?: (billData: CreateBillData) => void;
-
+    onDeleteFixedBill?: (billId: string) => void;
 }
 
 export enum BillCategory {

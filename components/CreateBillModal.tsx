@@ -17,6 +17,7 @@ interface CreateBillModalProps {
   visible: boolean;
   onClose: () => void;
   onCreateBill: (billData: CreateBillData) => void;
+  onDeleteFixedBill?: (billId: string) => void;
 }
 
 export interface CreateBillData {

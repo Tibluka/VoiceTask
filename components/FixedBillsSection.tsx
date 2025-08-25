@@ -4,6 +4,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
+  Alert,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -11,12 +12,14 @@ import {
 } from "react-native";
 import { CreateBillData, CreateBillModal } from "./CreateBillModal";
 import { ProgressBar } from "./ProgressBar";
+import { SwipeableCard } from "./SwipeableCard"; // Import do componente criado
 import { ThemedText } from "./ThemedText";
 
 export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({
   fixedBills,
   onBillPaid,
-  onCreateBill, // Nova prop para criar conta
+  onCreateBill,
+  onDeleteFixedBill,
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -28,6 +31,12 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({
   const subtitleColor = useThemeColor({ light: "#666", dark: "#aaa" }, "text");
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const handleCreateBill = (billData: CreateBillData) => {
+    if (onCreateBill) {
+      onCreateBill(billData);
+    }
+  };
 
   // Se não há contas fixas, mostra apenas o botão de criar
   if (!fixedBills || fixedBills.length === 0) {
@@ -71,7 +80,8 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({
         <CreateBillModal
           visible={showCreateModal}
           onClose={() => setShowCreateModal(false)}
-          onCreateBill={onCreateBill}
+          onCreateBill={handleCreateBill}
+          onDeleteFixedBill={onDeleteFixedBill}
         />
       </>
     );
@@ -82,7 +92,7 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({
   if (activeBills.length === 0) return null;
 
   // Calcula o status de pagamento do mês atual
-  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const currentMonth = new Date().toISOString().slice(0, 7);
 
   const billsWithStatus = activeBills.map((bill: FixedBill) => {
     const currentPayment = bill.paymentHistory?.find(
@@ -130,11 +140,32 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({
     return icons[category] || "receipt";
   };
 
-  const handleCreateBill = (billData: CreateBillData) => {
-    if (onCreateBill) {
-      onCreateBill(billData);
-    }
+  const handleDeleteBill = (bill: FixedBill) => {
+    Alert.alert(
+      "Excluir Conta Fixa",
+      `Deseja realmente excluir "${bill.name}"?\n\nEsta ação não pode ser desfeita.`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: () => {
+            if (onDeleteFixedBill) {
+              onDeleteFixedBill(bill.billId);
+            }
+          },
+        },
+      ]
+    );
   };
+
+  // Componente do conteúdo do botão de delete customizado
+  const DeleteButtonContent = () => (
+    <View style={styles.deleteButtonContent}>
+      <MaterialIcons name="delete" size={24} color="#fff" />
+      <ThemedText style={styles.deleteButtonText}>Excluir</ThemedText>
+    </View>
+  );
 
   return (
     <>
@@ -212,104 +243,106 @@ export const FixedBillsSection: React.FC<FixedBillsSectionProps> = ({
       <View style={styles.billsList}>
         {billsWithStatus
           .sort((a, b) => {
-            // Primeiro ordena por status (pendentes primeiro)
             if (a.isPaid !== b.isPaid) return a.isPaid ? 1 : -1;
-            // Depois por dia de vencimento
             return a.dueDay - b.dueDay;
           })
           .map((bill) => (
-            <TouchableOpacity
-              disabled={bill.isPaid}
-              onPress={() => onBillPaid(bill)}
+            <SwipeableCard
               key={bill.billId}
+              onDelete={() => handleDeleteBill(bill)}
+              deleteThreshold={80}
+              deleteButtonContent={<DeleteButtonContent />}
+              deleteButtonStyle={styles.deleteBackground}
+              containerStyle={styles.swipeContainer}
+              disabled={bill.isPaid} // Desabilita swipe quando pago
             >
-              <View
-                style={[
-                  styles.billCard,
-                  { backgroundColor: cardBg },
-                  bill.isPaid && styles.billCardPaid,
-                ]}
+              <TouchableOpacity
+                disabled={bill.isPaid}
+                onPress={() => !bill.isPaid && onBillPaid(bill)}
+                activeOpacity={bill.isPaid ? 1 : 0.7}
               >
-                <View style={styles.billHeader}>
-                  <View style={styles.billInfo}>
-                    <View
-                      style={[
-                        styles.billIcon,
-                        {
-                          backgroundColor: bill.isPaid
-                            ? "rgba(76, 175, 80, 0.1)"
-                            : "rgba(255, 152, 0, 0.1)",
-                        },
-                      ]}
-                    >
-                      <MaterialIcons
-                        name={getCategoryIcon(bill.category)}
-                        size={20}
-                        color={bill.isPaid ? "#4caf50" : "#ff9800"}
-                      />
-                    </View>
-                    <View style={styles.billDetails}>
-                      <ThemedText
-                        style={[styles.billName, { color: textColor }]}
-                      >
-                        {bill.name}
-                      </ThemedText>
-                      <ThemedText
-                        style={[styles.billDueDate, { color: subtitleColor }]}
-                      >
-                        Vence dia {bill.dueDay} •{" "}
-                        {bill.autopay
-                          ? "Débito automático"
-                          : "Pagamento manual"}
-                      </ThemedText>
-                    </View>
-                  </View>
-                  <View style={styles.billAmount}>
-                    <ThemedText
-                      style={[
-                        styles.billAmountText,
-                        { color: bill.isPaid ? "#4caf50" : textColor },
-                      ]}
-                    >
-                      {formatCurrency(bill.amount)}
-                    </ThemedText>
-                    {bill.isPaid && (
+                <View style={[styles.billCard, { backgroundColor: cardBg }]}>
+                  <View style={styles.billHeader}>
+                    <View style={styles.billInfo}>
                       <View
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          gap: 2,
-                        }}
+                        style={[
+                          styles.billIcon,
+                          {
+                            backgroundColor: bill.isPaid
+                              ? "rgba(76, 175, 80, 0.1)"
+                              : "rgba(255, 152, 0, 0.1)",
+                          },
+                        ]}
                       >
-                        <Ionicons
-                          name="checkmark-circle"
+                        <MaterialIcons
+                          name={getCategoryIcon(bill.category)}
                           size={20}
-                          color="#4caf50"
-                          style={styles.paidIcon}
+                          color={bill.isPaid ? "#4caf50" : "#ff9800"}
                         />
-                        {bill.autopay && (
-                          <Ionicons
-                            name="repeat"
-                            size={18}
-                            color="#4caf50"
-                            style={[styles.paidIcon, { marginLeft: 2 }]}
-                          />
-                        )}
                       </View>
-                    )}
+                      <View style={styles.billDetails}>
+                        <ThemedText
+                          style={[styles.billName, { color: textColor }]}
+                        >
+                          {bill.name}
+                        </ThemedText>
+                        <ThemedText
+                          style={[styles.billDueDate, { color: subtitleColor }]}
+                        >
+                          Vence dia {bill.dueDay} •{" "}
+                          {bill.autopay
+                            ? "Débito automático"
+                            : "Pagamento manual"}
+                        </ThemedText>
+                      </View>
+                    </View>
+                    <View style={styles.billAmount}>
+                      <ThemedText
+                        style={[
+                          styles.billAmountText,
+                          { color: bill.isPaid ? "#4caf50" : textColor },
+                        ]}
+                      >
+                        {formatCurrency(bill.amount)}
+                      </ThemedText>
+                      {bill.isPaid && (
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            gap: 2,
+                          }}
+                        >
+                          <Ionicons
+                            name="checkmark-circle"
+                            size={20}
+                            color="#4caf50"
+                            style={styles.paidIcon}
+                          />
+                          {bill.autopay && (
+                            <Ionicons
+                              name="repeat"
+                              size={18}
+                              color="#4caf50"
+                              style={[styles.paidIcon, { marginLeft: 2 }]}
+                            />
+                          )}
+                        </View>
+                      )}
 
-                    {!bill.isPaid && bill.autopay && (
-                      <Ionicons
-                        name="repeat"
-                        size={18}
-                        color="#4caf50"
-                        style={[styles.paidIcon, { marginTop: 2 }]}
-                      />
-                    )}
+                      {!bill.isPaid && bill.autopay && (
+                        <Ionicons
+                          name="repeat"
+                          size={18}
+                          color="#4caf50"
+                          style={[styles.paidIcon, { marginTop: 2 }]}
+                        />
+                      )}
+                    </View>
                   </View>
                 </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </SwipeableCard>
           ))}
       </View>
 
@@ -474,9 +507,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.03,
     shadowRadius: 3,
   },
-  billCardPaid: {
-    opacity: 0.7,
-  },
   billHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -515,5 +545,30 @@ const styles = StyleSheet.create({
   },
   paidIcon: {
     marginTop: 2,
+  },
+  swipeContainer: {
+    marginBottom: 8,
+    borderRadius: 12,
+  },
+  deleteBackground: {
+    backgroundColor: "#ff4444",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteButtonContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+    width: "100%",
+    gap: 4,
+  },
+  billTouchable: {
+    flex: 1,
+  },
+  deleteButtonText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });
