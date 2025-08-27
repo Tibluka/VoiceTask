@@ -21,8 +21,8 @@ interface CreateProjectModalProps {
 
 export interface CreateProjectData {
   projectName: string;
+  targetValue: number;
   description?: string;
-  targetValue?: number;
 }
 
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
@@ -43,15 +43,12 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     { light: "#f5f5f5", dark: "#2a2a2a" },
     "background"
   );
-  const borderColor = useThemeColor(
-    { light: "#e0e0e0", dark: "#333" },
-    "border"
-  );
+  const borderColor = useThemeColor({ light: "#e0e0e0", dark: "#333" }, "tint");
 
   const [formData, setFormData] = useState<CreateProjectData>({
     projectName: "",
     description: "",
-    targetValue: undefined,
+    targetValue: 0,
   });
 
   const [targetValueText, setTargetValueText] = useState("");
@@ -60,7 +57,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     setFormData({
       projectName: "",
       description: "",
-      targetValue: undefined,
+      targetValue: 0,
     });
     setTargetValueText("");
   };
@@ -76,7 +73,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     setTargetValueText(cleanText);
 
     // Converte para número (substitui vírgula por ponto)
-    const numericValue = parseFloat(cleanText.replace(",", ".")) || undefined;
+    const numericValue = parseFloat(cleanText.replace(",", ".")) || 0;
     setFormData((prev) => ({ ...prev, targetValue: numericValue }));
   };
 
@@ -88,6 +85,10 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   const validateForm = (): boolean => {
     if (!formData.projectName.trim()) {
       Alert.alert("Erro", "Nome do projeto é obrigatório");
+      return false;
+    }
+    if (formData.targetValue <= 0) {
+      Alert.alert("Erro", "Valor alvo deve ser maior que zero");
       return false;
     }
     return true;
@@ -118,7 +119,10 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             onPress={handleSubmit}
             style={[
               styles.saveButton,
-              { opacity: formData.projectName ? 1 : 0.5 },
+              {
+                opacity:
+                  formData.projectName && formData.targetValue > 0 ? 1 : 0.5,
+              },
             ]}
           >
             <ThemedText style={styles.saveButtonText}>Salvar</ThemedText>
@@ -150,6 +154,31 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             />
           </View>
 
+          {/* Valor Alvo */}
+          <View style={styles.section}>
+            <ThemedText style={[styles.label, { color: textColor }]}>
+              Valor Alvo *
+            </ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: inputBgColor,
+                  color: textColor,
+                  borderColor: borderColor,
+                },
+              ]}
+              value={formatCurrency(targetValueText)}
+              onChangeText={handleTargetValueChange}
+              placeholder="R$ 0,00"
+              placeholderTextColor={subtitleColor}
+              keyboardType="numeric"
+            />
+            <ThemedText style={[styles.helper, { color: subtitleColor }]}>
+              Defina uma meta de gasto para acompanhar o progresso
+            </ThemedText>
+          </View>
+
           {/* Descrição */}
           <View style={styles.section}>
             <ThemedText style={[styles.label, { color: textColor }]}>
@@ -176,31 +205,6 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               numberOfLines={3}
               textAlignVertical="top"
             />
-          </View>
-
-          {/* Valor Alvo */}
-          <View style={styles.section}>
-            <ThemedText style={[styles.label, { color: textColor }]}>
-              Valor Alvo (opcional)
-            </ThemedText>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: inputBgColor,
-                  color: textColor,
-                  borderColor: borderColor,
-                },
-              ]}
-              value={formatCurrency(targetValueText)}
-              onChangeText={handleTargetValueChange}
-              placeholder="R$ 0,00"
-              placeholderTextColor={subtitleColor}
-              keyboardType="numeric"
-            />
-            <ThemedText style={[styles.helper, { color: subtitleColor }]}>
-              Defina uma meta de gasto para acompanhar o progresso
-            </ThemedText>
           </View>
 
           {/* Informações Adicionais */}

@@ -80,8 +80,8 @@ export const UserStats = () => {
 
       const response = await createProject(
         projectData.projectName,
-        projectData.description,
-        projectData.targetValue
+        projectData.targetValue,
+        projectData.description
       );
 
       console.log("Projeto criado:", response);
@@ -90,13 +90,7 @@ export const UserStats = () => {
         "✅ Projeto Criado!",
         `${projectData.projectName} criado com sucesso!\n\n${
           projectData.description ? `📝 ${projectData.description}\n` : ""
-        }${
-          projectData.targetValue
-            ? `🎯 Meta: R$ ${projectData.targetValue
-                .toFixed(2)
-                .replace(".", ",")}`
-            : ""
-        }`,
+        }🎯 Meta: R$ ${projectData.targetValue.toFixed(2).replace(".", ",")}`,
         [{ text: "Perfeito!" }]
       );
       loadConfig(user!.id);

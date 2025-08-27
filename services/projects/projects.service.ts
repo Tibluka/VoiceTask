@@ -3,8 +3,8 @@ import { apiRequest } from '@/utils/api';
 
 export const createProject = async (
     projectName: string,
-    description?: string,
-    targetValue?: number
+    targetValue: number,
+    description?: string
 ): Promise<any> => {
     const projectData: CreateProjectData = {
         projectName,

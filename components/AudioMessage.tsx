@@ -25,6 +25,12 @@ interface Props {
   };
 }
 
+// Função para determinar a cor do texto em negrito
+function getBoldColor(type: string) {
+  if (type === "PROJECT_CREATION") return "#000";
+  return type === "user" ? "#fff" : "#333";
+}
+
 export const AudioMessage = ({
   message,
   consult_results,
@@ -85,7 +91,7 @@ export const AudioMessage = ({
             deleteButtonContent={<DeleteButtonContent />}
             deleteButtonStyle={styles.deleteBackground}
             containerStyle={styles.swipeContainer}
-            disabled={false}
+            disabled={row.type === "PROJECT_CREATION"}
             onSwipeStart={handleSwipeStart}
             onSwipeEnd={handleSwipeEnd}
           >
@@ -109,9 +115,11 @@ export const AudioMessage = ({
               <ThemedText
                 style={[
                   styles.cardValue,
-                  row.type === "SPENDING"
-                    ? styles.valueExpense
-                    : styles.valueIncome,
+                  row.type !== "SPENDING"
+                    ? row.type === "PROJECT_CREATION"
+                      ? styles.valueProject
+                      : styles.valueIncome
+                    : styles.valueExpense,
                 ]}
               >
                 {new Intl.NumberFormat("pt-BR", {
@@ -122,15 +130,17 @@ export const AudioMessage = ({
             </View>
           </SwipeableCard>
         ))}
-        <ThemedText
-          style={{
-            marginTop: 4,
-            fontWeight: "bold",
-            color: total < 0 ? "red" : "green",
-          }}
-        >
-          Total: {formatCurrency(total)}
-        </ThemedText>
+        {total !== 0 && (
+          <ThemedText
+            style={{
+              marginTop: 4,
+              fontWeight: "bold",
+              color: total < 0 ? "red" : "green",
+            }}
+          >
+            Total: {formatCurrency(total)}
+          </ThemedText>
+        )}
       </View>
     );
   };
@@ -174,7 +184,7 @@ export const AudioMessage = ({
             fontWeight: "bold",
             fontSize: 16,
             marginBottom: 4,
-            color: isUser ? "#fff" : "#333",
+            color: getBoldColor(type),
           },
           bulletStyle: {
             marginLeft: 8,
@@ -266,6 +276,9 @@ const styles = StyleSheet.create({
   },
   valueIncome: {
     color: "#43a047",
+  },
+  valueProject: {
+    color: "#000",
   },
   // Estilos para SwipeableCard
   swipeContainer: {

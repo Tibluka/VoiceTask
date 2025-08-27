@@ -4,7 +4,7 @@ export interface ConsultResult {
     description: string;
     date: string;
     value: number;
-    type: 'SPENDING' | 'REVENUE';
+    type: 'SPENDING' | 'REVENUE' | 'PROJECT_CREATION';
     installment_info?: string;
 }
 
