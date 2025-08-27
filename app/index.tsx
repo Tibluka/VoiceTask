@@ -13,55 +13,69 @@ export default function RootLayout() {
 
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
+  const [minTimeReached, setMinTimeReached] = useState(false);
 
   useEffect(() => {
     const init = async () => {
-      console.log("Iniciando carregamento do token...");
-      await loadToken();
-      console.log("Token carregado, loading = false");
+      console.log("🚀 Iniciando carregamento do token...");
+
+      // Tempo mínimo de splash (3 segundos)
+      const minTimePromise = new Promise((resolve) => {
+        setTimeout(() => {
+          console.log("⏰ Tempo mínimo de splash atingido");
+          setMinTimeReached(true);
+          resolve(true);
+        }, 3000);
+      });
+
+      // Carregamento do token
+      const tokenPromise = loadToken().then(() => {
+        console.log("✅ Token carregado");
+      });
+
+      // Aguardar ambos: tempo mínimo E carregamento do token
+      await Promise.all([minTimePromise, tokenPromise]);
+
+      console.log("🎯 Pronto para esconder splash");
       setLoading(false);
     };
+
     init();
   }, []);
 
-  // Função chamada quando a animação Lottie termina
+  // Função chamada quando o usuário pode prosseguir
   const handleAnimationFinish = () => {
-    console.log("Animação finalizada, escondendo splash");
+    console.log("🎬 Splash pode ser escondido agora");
     setShowSplash(false);
   };
 
-  console.log("Estados atuais:", { loading, showSplash, isLoggedIn });
+  console.log("📊 Estados:", {
+    loading,
+    showSplash,
+    minTimeReached,
+    isLoggedIn,
+  });
 
-  // SEMPRE mostra o splash primeiro, independente do loading
-  if (showSplash) {
+  // Mostra splash enquanto não terminou o loading OU ainda está em showSplash
+  if (showSplash || loading) {
     return (
       <AnimatedSplashScreen
         isDark={isDark}
-        // Só permite que a animação termine se o loading também terminou
-        onAnimationFinish={!loading ? handleAnimationFinish : undefined}
-      />
-    );
-  }
-
-  // Só depois que o splash acabou, verifica se ainda está carregando
-  if (loading) {
-    // Se por algum motivo ainda estiver carregando após a animação,
-    // poderia mostrar um loading simples aqui, mas normalmente não chegará aqui
-    return (
-      <AnimatedSplashScreen
-        isDark={isDark}
-        onAnimationFinish={handleAnimationFinish}
+        // Só permite esconder quando tanto o loading quanto o tempo mínimo terminaram
+        onAnimationFinish={
+          !loading && minTimeReached ? handleAnimationFinish : undefined
+        }
       />
     );
   }
 
   // Se não estiver logado, redireciona para login
   if (!isLoggedIn) {
-    console.log("Não logado, redirecionando para login");
+    console.log("🔐 Não logado, redirecionando para login");
     return <Redirect href="/(auth)/login" />;
   }
 
   // Se estiver logado, mostra o app principal
-  console.log("Logado, mostrando app principal");
+  console.log("✅ Logado, mostrando app principal");
   return <MainTabs />;
 }

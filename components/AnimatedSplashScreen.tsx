@@ -18,16 +18,22 @@ export default function AnimatedSplashScreen({
   useEffect(() => {
     // Auto-play a animação quando o componente monta
     const timer = setTimeout(() => {
+      console.log("🎬 Iniciando animação Lottie");
       animationRef.current?.play();
-    }, 100);
+    }, 200);
 
     return () => clearTimeout(timer);
   }, []);
 
   const handleAnimationComplete = () => {
-    console.log("Animação Lottie completada"); // Debug
+    console.log("🎬 Animação Lottie completada");
+
+    // Chama imediatamente quando a animação terminar
     if (onAnimationFinish) {
+      console.log("✅ Chamando onAnimationFinish");
       onAnimationFinish();
+    } else {
+      console.log("⏳ onAnimationFinish não fornecido - aguardando loading...");
     }
   };
 
@@ -40,18 +46,18 @@ export default function AnimatedSplashScreen({
     >
       <LottieView
         ref={animationRef}
-        source={require("../assets/animations/voicetsak-splash.json")} // Nome correto
+        source={require("../assets/animations/voicetask-splash.json")} // ⚠️ CORRIGI O NOME
         style={styles.animation}
         autoPlay={true}
-        loop={false}
+        loop={false} // ✨ SEM loop - deixa terminar naturalmente
         onAnimationFinish={handleAnimationComplete}
         resizeMode="contain"
-        speed={1}
+        speed={1} // ✨ Velocidade normal
         colorFilters={
           isDark
             ? [
                 {
-                  keypath: "**", // Aplica a todos os elementos
+                  keypath: "**",
                   color: "#29C1D6",
                 },
               ]
