@@ -16,18 +16,20 @@ export default function AnimatedSplashScreen({
   const animationRef = useRef<LottieView>(null);
 
   useEffect(() => {
-    // Auto-play a animação
-    animationRef.current?.play();
+    // Auto-play a animação quando o componente monta
+    const timer = setTimeout(() => {
+      animationRef.current?.play();
+    }, 100);
 
-    // Fallback: se não houver callback, termina em 3 segundos
-    if (!onAnimationFinish) {
-      const timer = setTimeout(() => {
-        // Animação termina automaticamente
-      }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
-      return () => clearTimeout(timer);
+  const handleAnimationComplete = () => {
+    console.log("Animação Lottie completada"); // Debug
+    if (onAnimationFinish) {
+      onAnimationFinish();
     }
-  }, [onAnimationFinish]);
+  };
 
   return (
     <View
@@ -38,22 +40,19 @@ export default function AnimatedSplashScreen({
     >
       <LottieView
         ref={animationRef}
-        source={require("../assets/animations/voicetsak-splash.json")} // Caminho correto
+        source={require("../assets/animations/voicetsak-splash.json")} // Nome correto
         style={styles.animation}
-        autoPlay
+        autoPlay={true}
         loop={false}
-        onAnimationFinish={onAnimationFinish}
+        onAnimationFinish={handleAnimationComplete}
         resizeMode="contain"
+        speed={1}
         colorFilters={
           isDark
             ? [
                 {
-                  keypath: "microfone", // Nome da camada no Lottie
+                  keypath: "**", // Aplica a todos os elementos
                   color: "#29C1D6",
-                },
-                {
-                  keypath: "texto",
-                  color: "#0AA7D1",
                 },
               ]
             : []
@@ -70,9 +69,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   animation: {
-    width: width * 0.7,
-    height: height * 0.5,
-    maxWidth: 300,
-    maxHeight: 200,
+    width: width * 0.8,
+    height: height * 0.6,
+    maxWidth: 400,
+    maxHeight: 300,
   },
 });
