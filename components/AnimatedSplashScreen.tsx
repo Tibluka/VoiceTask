@@ -1,6 +1,6 @@
 import LottieView from "lottie-react-native";
 import React, { useEffect, useRef } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
+import { Animated, Dimensions, StyleSheet } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -14,45 +14,62 @@ export default function AnimatedSplashScreen({
   onAnimationFinish,
 }: AnimatedSplashScreenProps) {
   const animationRef = useRef<LottieView>(null);
+  const fadeInAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    console.log("🎬 AnimatedSplashScreen montado");
+
+    // Fade in suave do splash
+    Animated.timing(fadeInAnim, {
+      toValue: 1,
+      duration: 300, // 500ms fade in
+      useNativeDriver: true,
+    }).start();
+
     // Auto-play a animação quando o componente monta
     const timer = setTimeout(() => {
-      console.log("🎬 Iniciando animação Lottie");
+      console.log("▶️ Iniciando animação Lottie");
       animationRef.current?.play();
-    }, 200);
+    }, 300); // Pequeno delay após fade in
 
-    return () => clearTimeout(timer);
-  }, []);
+    return () => {
+      clearTimeout(timer);
+      console.log("🗑️ AnimatedSplashScreen desmontado");
+    };
+  }, [fadeInAnim]);
 
   const handleAnimationComplete = () => {
-    console.log("🎬 Animação Lottie completada");
+    console.log("✅ Animação Lottie completada!");
 
-    // Chama imediatamente quando a animação terminar
     if (onAnimationFinish) {
-      console.log("✅ Chamando onAnimationFinish");
+      console.log("🎯 Chamando onAnimationFinish callback");
       onAnimationFinish();
     } else {
-      console.log("⏳ onAnimationFinish não fornecido - aguardando loading...");
+      console.log(
+        "⏳ onAnimationFinish = undefined - aguardando loading terminar"
+      );
     }
   };
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.container,
-        { backgroundColor: isDark ? "#000000" : "#FFFFFF" },
+        {
+          backgroundColor: isDark ? "#000000" : "#FFFFFF",
+          opacity: fadeInAnim, // Fade in do splash
+        },
       ]}
     >
       <LottieView
         ref={animationRef}
-        source={require("../assets/animations/voicetask-splash.json")} // ⚠️ CORRIGI O NOME
+        source={require("../assets/animations/voicetask-splash.json")}
         style={styles.animation}
         autoPlay={true}
-        loop={false} // ✨ SEM loop - deixa terminar naturalmente
+        loop={false}
         onAnimationFinish={handleAnimationComplete}
         resizeMode="contain"
-        speed={1} // ✨ Velocidade normal
+        speed={1.2}
         colorFilters={
           isDark
             ? [
@@ -64,7 +81,7 @@ export default function AnimatedSplashScreen({
             : []
         }
       />
-    </View>
+    </Animated.View>
   );
 }
 
