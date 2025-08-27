@@ -1,17 +1,18 @@
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useAuthStore } from '@/zustand/AuthStore/useAuthStore';
-import { Redirect } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import MainTabs from './(tabs)/main-tabs';
+import AnimatedSplashScreen from "@/components/AnimatedSplashScreen"; // Ajuste o caminho
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { useAuthStore } from "@/zustand/AuthStore/useAuthStore";
+import { Redirect } from "expo-router";
+import React, { useEffect, useState } from "react";
+import MainTabs from "./(tabs)/main-tabs";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = colorScheme === "dark";
 
   const { isLoggedIn, loadToken } = useAuthStore();
 
   const [loading, setLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const init = async () => {
@@ -21,26 +22,26 @@ export default function RootLayout() {
     init();
   }, []);
 
-  if (loading) {
+  // Função chamada quando a animação Lottie termina
+  const handleAnimationFinish = () => {
+    setShowSplash(false);
+  };
+
+  // Enquanto carrega ou mostra splash animado
+  if (loading || showSplash) {
     return (
-      <View style={{
-        flex: 1,
-        backgroundColor: isDark ? '#000' : '#fff',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}>
-        <ActivityIndicator size="large" color="#4A90E2" />
-      </View>
+      <AnimatedSplashScreen
+        isDark={isDark}
+        onAnimationFinish={loading ? undefined : handleAnimationFinish}
+      />
     );
   }
 
+  // Se não estiver logado, redireciona para login
   if (!isLoggedIn) {
-    return (
-      <Redirect href="/(auth)/login" />
-    );
+    return <Redirect href="/(auth)/login" />;
   }
 
-  return (
-    <MainTabs />
-  );
+  // Se estiver logado, mostra o app principal
+  return <MainTabs />;
 }
