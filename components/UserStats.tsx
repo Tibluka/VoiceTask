@@ -4,11 +4,16 @@ import {
   deleteFixedBill,
   payBill,
 } from "@/services/fixed-bills/fixed-bills.service";
+import {
+  createProject,
+  deleteProject,
+} from "@/services/projects/projects.service";
 import { useConfigStore } from "@/zustand/ConfigStore/useConfigStore";
 import { useUserStore } from "@/zustand/UserStores/useUserStore";
 import React, { useEffect } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { CreateBillData } from "./CreateBillModal";
+import { CreateProjectData } from "./CreateProjectModal";
 import { FinanceSection } from "./FinanceSection";
 import { FixedBillsSection } from "./FixedBillsSection";
 import { GoalsSection } from "./GoalsSection";
@@ -30,7 +35,7 @@ export const UserStats = () => {
       ? cfg?.customPercentages
       : { needs: 50, wants: 30, investments: 20 };
 
-  // Versão mais completa da função createBill
+  // Função para criar conta fixa
   const createBill = async (billData: CreateBillData) => {
     try {
       console.log("Criando conta fixa completa:", billData);
@@ -68,6 +73,68 @@ export const UserStats = () => {
     }
   };
 
+  // Função para criar projeto
+  const createNewProject = async (projectData: CreateProjectData) => {
+    try {
+      console.log("Criando projeto:", projectData);
+
+      const response = await createProject(
+        projectData.projectName,
+        projectData.description,
+        projectData.targetValue
+      );
+
+      console.log("Projeto criado:", response);
+
+      Alert.alert(
+        "✅ Projeto Criado!",
+        `${projectData.projectName} criado com sucesso!\n\n${
+          projectData.description ? `📝 ${projectData.description}\n` : ""
+        }${
+          projectData.targetValue
+            ? `🎯 Meta: R$ ${projectData.targetValue
+                .toFixed(2)
+                .replace(".", ",")}`
+            : ""
+        }`,
+        [{ text: "Perfeito!" }]
+      );
+      loadConfig(user!.id);
+    } catch (error: any) {
+      console.error("Erro:", error);
+
+      Alert.alert(
+        "Ops! ❌",
+        error.response?.data?.message ||
+          error.message ||
+          "Erro ao criar projeto",
+        [{ text: "Tentar novamente" }]
+      );
+    }
+  };
+
+  // Função para deletar projeto
+  const deleteProjectHandler = async (projectId: string) => {
+    try {
+      await deleteProject(projectId);
+
+      Alert.alert("✅ Projeto Removido!", `Projeto removido com sucesso!`, [
+        { text: "Ok!" },
+      ]);
+      loadConfig(user!.id);
+    } catch (error: any) {
+      console.error("Erro:", error);
+
+      Alert.alert(
+        "Ops! ❌",
+        error.response?.data?.message ||
+          error.message ||
+          "Erro ao remover projeto",
+        [{ text: "Tentar novamente" }]
+      );
+    }
+  };
+
   const deleteBill = async (billId: string) => {
     try {
       await deleteFixedBill(billId);
@@ -81,7 +148,9 @@ export const UserStats = () => {
 
       Alert.alert(
         "Ops! ❌",
-        error.response?.data?.message || error.message || "Erro ao criar conta",
+        error.response?.data?.message ||
+          error.message ||
+          "Erro ao remover conta",
         [{ text: "Tentar novamente" }]
       );
     }
@@ -125,7 +194,11 @@ export const UserStats = () => {
       />
 
       {/* Seção de Projetos */}
-      <ProjectsSection projects={cfg?.projects || []} />
+      <ProjectsSection
+        projects={cfg?.projects || []}
+        onCreateProject={createNewProject}
+        onDeleteProject={deleteProjectHandler}
+      />
 
       {/* Card de Metas */}
       <GoalsSection goalsCount={cfg?.goals?.length || 0} />
