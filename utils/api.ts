@@ -19,7 +19,7 @@ export const apiRequest = async (
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
-    
+
     try {
         const url = `${apiUrl}${endpoint}`;
         console.log(url);
