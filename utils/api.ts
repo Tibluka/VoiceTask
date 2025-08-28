@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
+
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 export const apiRequest = async (
